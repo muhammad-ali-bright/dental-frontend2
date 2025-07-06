@@ -101,7 +101,6 @@ src/
 ##  Architecture & Design Decisions
 
 ### State Management
-- **React Context API**: Chosen for simplicity and sufficient for the application's scope
 - **Separation of Concerns**: AuthContext for authentication, DataContext for application data
 - **Persistent Storage**: localStorage for data persistence across browser sessions
 
@@ -130,7 +129,7 @@ src/
 ##  Data Models
 
 ### User
-```typescript
+```javascript
 interface User {
   id: string;
   role: 'Admin' | 'Patient';
@@ -142,7 +141,7 @@ interface User {
 ```
 
 ### Patient
-```typescript
+```javascript
 interface Patient {
   id: string;
   name: string;
@@ -158,7 +157,7 @@ interface Patient {
 ```
 
 ### Incident (Appointment)
-```typescript
+```javascript
 interface Incident {
   id: string;
   patientId: string;
@@ -189,8 +188,7 @@ interface Incident {
 
 The application is ready for deployment on platforms like:
 - **Netlify**: Static hosting with automatic deployments
-- **Vercel**: Optimized for React applications
-- **GitHub Pages**: Simple static hosting solution
+- **Website Link**: https://entnt-dentalcaremanagement.netlify.app/
 
 ##  Mobile Responsiveness
 
