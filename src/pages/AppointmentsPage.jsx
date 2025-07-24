@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { Search, Plus, Edit2, Trash2, Filter, Calendar, Clock, CheckCircle, XCircle, AlertCircle, Download } from 'lucide-react';
+import toast from 'react-hot-toast';
 import Layout from '../components/Layout/Layout';
 import AppointmentModal from '../components/Appointments/AppointmentModal';
 import { useData } from '../contexts/DataContext';
 import { formatDate, formatTime } from '../utils/dateUtils';
+
+import { createIncidentAPI, updateIncidentAPI } from '../api/appointments';
 
 const AppointmentsPage = () => {
   const { incidents, patients, addIncident, updateIncident, deleteIncident, getPatientById } = useData();
@@ -56,11 +59,22 @@ const AppointmentsPage = () => {
     }
   };
 
-  const handleSaveIncident = (incidentData) => {
-    if (selectedIncident) {
-      updateIncident(selectedIncident.id, incidentData);
-    } else {
-      addIncident(incidentData);
+  const handleSaveIncident = async (incidentData) => {
+    try {
+      if (selectedIncident) {
+        await updateIncidentAPI(selectedIncident.id, incidentData);
+        toast.success("Incident updated successfully");
+      } else {
+        await createIncidentAPI(incidentData);
+        toast.success("Incident created successfully");
+      }
+
+      // Close modal, reset state, or refresh list
+      setIsModalOpen(false);
+      // fetchIncidents(); // if you have this
+    } catch (err) {
+      console.error("Error saving incident:", err);
+      toast.error("Failed to save incident");
     }
   };
 
