@@ -22,6 +22,9 @@ const PatientsPage = () => {
   const { getPatientIncidents } = useData();
   const [patients, setPatients] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
+  const [childrenCount, setChildrenCount] = useState(0);
+  const [adultCount, setAdultCount] = useState(0);
+  const [seniorCount, setSeniorCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(undefined);
@@ -154,27 +157,24 @@ const PatientsPage = () => {
         {/* Patient Statistics */}
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{patients.length}</div>
+            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{totalCount}</div>
             <div className="text-sm text-gray-600 dark:text-gray-300">Total Patients</div>
           </div>
           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
             <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-              {patients.filter(p => new Date().getFullYear() - new Date(p.dob).getFullYear() < 18).length}
+              {childrenCount}
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-300">Children</div>
           </div>
           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
             <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-              {patients.filter(p => {
-                const age = new Date().getFullYear() - new Date(p.dob).getFullYear();
-                return age >= 18 && age < 65;
-              }).length}
+              {adultCount}
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-300">Adults</div>
           </div>
           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
             <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-              {patients.filter(p => new Date().getFullYear() - new Date(p.dob).getFullYear() >= 65).length}
+              {seniorCount}
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-300">Seniors</div>
           </div>
