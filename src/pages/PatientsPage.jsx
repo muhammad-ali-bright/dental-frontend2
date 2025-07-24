@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import { Search, Plus, Edit2, Trash2, Filter, Download, FileText, Phone, Mail } from 'lucide-react';
 import toast from "react-hot-toast";
 
 import Layout from '../components/Layout/Layout';
 import PatientModal from '../components/Patients/PatientModal';
+import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
 import { formatDate } from '../utils/dateUtils';
 
@@ -12,10 +13,14 @@ import {
   createPatientAPI,
   updatePatientAPI,
   fetchPatientsAPI,
+  deletePatientAPI,
 } from '../api/patients';
 
 const PatientsPage = () => {
-  const { patients, addPatient, updatePatient, deletePatient, getPatientIncidents } = useData();
+  const { user } = useAuth();
+  const { addPatient, updatePatient, deletePatient, getPatientIncidents } = useData();
+  const [patients, setPatients] = useState([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [ageFilter, setAgeFilter] = useState('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -43,6 +48,23 @@ const PatientsPage = () => {
 
   const totalPages = Math.ceil(filteredPatients.length / pageSize);
 
+  const fetchPatients = async () => {
+    try {
+      const { data } = await fetchPatientsAPI({
+        page: currentPage,
+        limit: pageSize,
+        search: searchTerm,
+        sort: sortField,
+        order: sortOrder,
+        role: "Student"  // only send userId if Student
+      });
+      setPatients(data.patients);
+      setTotalCount(data.totalCount); // You'll add this state
+    } catch (err) {
+      console.error('Failed to fetch patients', err);
+      toast.error('Could not load patients');
+    }
+  };
 
   const handleAddPatient = () => {
     setSelectedPatient(undefined);
@@ -54,9 +76,19 @@ const PatientsPage = () => {
     setIsModalOpen(true);
   };
 
-  const handleDeletePatient = (patientId) => {
-    if (window.confirm('Are you sure you want to delete this patient? This will also delete all associated appointments.')) {
-      deletePatient(patientId);
+  const handleDeletePatient = async (patientId) => {
+    const confirm = window.confirm(
+      'Are you sure you want to delete this patient? This will also delete all associated appointments.'
+    );
+    if (!confirm) return;
+
+    try {
+      await deletePatientAPI(patientId);
+      toast.success('Patient deleted successfully');
+      await fetchPatients(); // Refresh list after deletion
+    } catch (err) {
+      console.error('Failed to delete patient:', err);
+      toast.error('Error deleting patient');
     }
   };
 
@@ -75,8 +107,9 @@ const PatientsPage = () => {
         await createPatientAPI(payload);
         toast.success("Created Successfully")
       }
-
       setIsModalOpen(false);
+
+      fetchPatients();
     } catch (err) {
       console.error('Error saving patient:', err);
       toast.error('Failed to save patient.');
@@ -109,6 +142,16 @@ const PatientsPage = () => {
   const handleEmailPatient = (email) => {
     window.open(`mailto:${email}`);
   };
+
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      if (user) {
+        fetchPatients();
+      }
+    }, 300); // 300ms debounce
+
+    return () => clearTimeout(delayDebounce);
+  }, [searchTerm, currentPage, pageSize, sortField, sortOrder, user?.role, user?.id]);
 
   return (
     <Layout>

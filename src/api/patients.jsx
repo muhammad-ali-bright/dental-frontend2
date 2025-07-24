@@ -25,7 +25,7 @@ export const deletePatientAPI = (id) => {
     return API.delete(`/patients/${id}`);
 };
 
-// Get all incidents (appointments) for a patient
+// Get all 'Student's (appointments) for a patient
 export const fetchIncidentsByPatientAPI = (patientId) => {
     return API.get(`/patients/${patientId}/incidents`);
 };
