@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronUp, ChevronDown } from 'lucide-react';
 import { Search, Plus, Edit2, Trash2, Filter, Download, FileText, Phone, Mail } from 'lucide-react';
 import toast from "react-hot-toast";
 
@@ -18,11 +17,10 @@ import {
 
 const PatientsPage = () => {
   const { user } = useAuth();
-  const { addPatient, updatePatient, deletePatient, getPatientIncidents } = useData();
+  const { getPatientIncidents } = useData();
   const [patients, setPatients] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
-  const [ageFilter, setAgeFilter] = useState('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(undefined);
   // Pagination
@@ -31,22 +29,7 @@ const PatientsPage = () => {
   const [sortField, setSortField] = useState('name'); // or 'createdAt'
   const [sortOrder, setSortOrder] = useState('desc');
 
-  const filteredPatients = patients.filter(patient => {
-    const matchesSearch = patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      patient.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      patient.contact.includes(searchTerm);
-
-    const age = new Date().getFullYear() - new Date(patient.dob).getFullYear();
-    let matchesAge = true;
-
-    if (ageFilter === 'child') matchesAge = age < 18;
-    else if (ageFilter === 'adult') matchesAge = age >= 18 && age < 65;
-    else if (ageFilter === 'senior') matchesAge = age >= 65;
-
-    return matchesSearch && matchesAge;
-  });
-
-  const totalPages = Math.ceil(filteredPatients.length / pageSize);
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
   const fetchPatients = async () => {
     try {
@@ -58,8 +41,17 @@ const PatientsPage = () => {
         order: sortOrder,
         role: "Student"  // only send userId if Student
       });
-      setPatients(data.patients);
-      setTotalCount(data.totalCount); // You'll add this state
+
+      // Calculate how many pages are available based on the new total
+      const newTotalPages = Math.max(1, Math.ceil(data.totalCount / pageSize));
+
+      // If the current page is now invalid (e.g. 2 > 1), move back to valid page
+      if (currentPage > newTotalPages) {
+        setCurrentPage(newTotalPages);
+      } else {
+        setPatients(data.patients);
+        setTotalCount(data.totalCount);
+      }
     } catch (err) {
       console.error('Failed to fetch patients', err);
       toast.error('Could not load patients');
@@ -116,25 +108,6 @@ const PatientsPage = () => {
     }
   };
 
-  const handleExportPatients = () => {
-    const csvContent = [
-      ['Name', 'Email', 'Contact', 'Age', 'Total Appointments'],
-      ...filteredPatients.map(patient => {
-        const age = new Date().getFullYear() - new Date(patient.dob).getFullYear();
-        const appointments = getPatientIncidents(patient.id).length;
-        return [patient.name, patient.email, patient.contact, age, appointments];
-      })
-    ].map(row => row.join(',')).join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'patients_export.csv';
-    a.click();
-    window.URL.revokeObjectURL(url);
-  };
-
   const handleCallPatient = (contact) => {
     window.open(`tel:${contact}`);
   };
@@ -163,13 +136,6 @@ const PatientsPage = () => {
               <p className="text-gray-600 dark:text-gray-300 mt-1 text-sm sm:text-base">Manage your patient database</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-2">
-              <button
-                onClick={handleExportPatients}
-                className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 transform hover:scale-105"
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Export CSV
-              </button>
               <button
                 onClick={handleAddPatient}
                 className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 transform hover:scale-105 hover:shadow-lg animate-pulse-glow w-full sm:w-auto"
@@ -265,7 +231,7 @@ const PatientsPage = () => {
           {/* Mobile Card View */}
           <div className="block lg:hidden">
             <div className="divide-y divide-gray-200 dark:divide-gray-700">
-              {filteredPatients.map((patient, index) => {
+              {patients.map((patient, index) => {
                 const patientIncidents = getPatientIncidents(patient.id);
                 const completedIncidents = patientIncidents.filter(i => i.status === 'Completed');
                 const lastVisit = completedIncidents.length > 0
@@ -293,7 +259,14 @@ const PatientsPage = () => {
                             <span className="font-medium">Contact:</span> {patient.contact}
                           </div>
                           <div>
-                            <span className="font-medium">Age:</span> {age} years
+                            <span className="font-medium">Date of Birth: </span>
+                            {
+                              new Date(patient.dob).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: '2-digit',
+                                day: '2-digit',
+                              })
+                            }
                           </div>
                           <div>
                             <span className="font-medium">Appointments:</span> {patientIncidents.length}
@@ -352,7 +325,7 @@ const PatientsPage = () => {
                     Contact
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Age
+                    Date of Birth
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Appointments
@@ -369,7 +342,7 @@ const PatientsPage = () => {
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                {filteredPatients.map((patient, index) => {
+                {patients.map((patient, index) => {
                   const patientIncidents = getPatientIncidents(patient.id);
                   const completedIncidents = patientIncidents.filter(i => i.status === 'Completed');
                   const lastVisit = completedIncidents.length > 0
@@ -399,7 +372,11 @@ const PatientsPage = () => {
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                        {age} years
+                        {new Date(patient.dob).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit',
+                        })}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                         {patientIncidents.length} total
@@ -448,7 +425,7 @@ const PatientsPage = () => {
             </table>
           </div>
 
-          {filteredPatients.length === 0 && (
+          {patients.length === 0 && (
             <div className="text-center py-12">
               <p className="text-gray-500 dark:text-gray-400">No patients found</p>
             </div>
@@ -459,8 +436,8 @@ const PatientsPage = () => {
         <div className="flex items-center justify-between mt-6 text-sm text-gray-700 dark:text-gray-300">
           <div>
             Showing {(currentPage - 1) * pageSize + 1} to{' '}
-            {Math.min(currentPage * pageSize, filteredPatients.length)} of{' '}
-            {filteredPatients.length} results
+            {Math.min(currentPage * pageSize, patients.length)} of{' '}
+            {patients.length} results
           </div>
           <div className="flex items-center gap-2">
             <button

@@ -20,37 +20,6 @@ export const DataProvider = ({ children }) => {
     setIncidents(getIncidents());
   }, []);
 
-  const addPatient = (patientData) => {
-    const newPatient = {
-      ...patientData,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    const updatedPatients = [...patients, newPatient];
-    setPatients(updatedPatients);
-    savePatients(updatedPatients);
-  };
-
-  const updatePatient = (id, patientData) => {
-    const updatedPatients = patients.map(patient =>
-      patient.id === id
-        ? { ...patient, ...patientData, updatedAt: new Date().toISOString() }
-        : patient
-    );
-    setPatients(updatedPatients);
-    savePatients(updatedPatients);
-  };
-
-  const deletePatient = (id) => {
-    const updatedPatients = patients.filter(patient => patient.id !== id);
-    const updatedIncidents = incidents.filter(incident => incident.patientId !== id);
-    setPatients(updatedPatients);
-    setIncidents(updatedIncidents);
-    savePatients(updatedPatients);
-    saveIncidents(updatedIncidents);
-  };
-
   const addIncident = (incidentData) => {
     const newIncident = {
       ...incidentData,
@@ -95,11 +64,7 @@ export const DataProvider = ({ children }) => {
   };
 
   const value = {
-    patients,
     incidents,
-    addPatient,
-    updatePatient,
-    deletePatient,
     addIncident,
     updateIncident,
     deleteIncident,

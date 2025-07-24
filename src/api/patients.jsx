@@ -1,8 +1,10 @@
 import { API } from './axios';
 
 // Fetch all patients
-export const fetchPatientsAPI = () => {
-    return API.get('/patients');
+export const fetchPatientsAPI = (data) => {
+    return API.get('/patients', {
+        params: data,
+    });
 };
 
 // Get a single patient by ID

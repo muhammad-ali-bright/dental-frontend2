@@ -13,28 +13,18 @@ const PatientModal = ({ isOpen, onClose, onSave, patient }) => {
   });
 
   useEffect(() => {
-    if (patient) {
+    if (isOpen) {
       setFormData({
-        name: patient.name || '',
-        dob: patient.dob || '',
-        contact: patient.contact || '',
-        email: patient.email || '',
-        healthInfo: patient.healthInfo || '',
-        address: patient.address || '',
-        emergencyContact: patient.emergencyContact || ''
-      });
-    } else {
-      setFormData({
-        name: '',
-        dob: '',
-        contact: '',
-        email: '',
-        healthInfo: '',
-        address: '',
-        emergencyContact: ''
+        name: patient?.name || '',
+        dob: patient?.dob ? patient.dob.slice(0, 10) : '', // ✅ Fix here
+        contact: patient?.contact || '',
+        email: patient?.email || '',
+        healthInfo: patient?.healthInfo || '',
+        address: patient?.address || '',
+        emergencyContact: patient?.emergencyContact || '',
       });
     }
-  }, [patient]);
+  }, [isOpen]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
