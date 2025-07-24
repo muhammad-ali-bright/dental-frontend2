@@ -1,0 +1,19 @@
+[core]
+	repositoryformatversion = 0
+	filemode = false
+	bare = false
+	logallrefupdates = true
+	symlinks = false
+	ignorecase = true
+[branch "main"]
+	vscode-merge-base = origin/main
+	vscode-merge-base = origin/main
+	remote = origin
+	vscode-merge-base = origin/main
+	merge = refs/heads/main
+[user]
+	name = Muhammad Ali
+	email = muhammad.ali.bright@gmail.com
+[remote "origin"]
+	url = https://github.com/muhammad-ali-bright/dental-frontend2
+	fetch = +refs/heads/*:refs/remotes/origin/*
