@@ -16,9 +16,9 @@ const AppointmentsPage = () => {
   const filteredIncidents = incidents.filter(incident => {
     const patient = getPatientById(incident.patientId);
     const matchesSearch = incident.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         patient?.name.toLowerCase().includes(searchTerm.toLowerCase());
+      patient?.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || incident.status === statusFilter;
-    
+
     let matchesDate = true;
     const appointmentDate = new Date(incident.appointmentDate);
     const today = new Date();
@@ -36,7 +36,7 @@ const AppointmentsPage = () => {
     } else if (dateFilter === 'overdue') {
       matchesDate = appointmentDate < today && incident.status === 'Scheduled';
     }
-    
+
     return matchesSearch && matchesStatus && matchesDate;
   });
 
@@ -239,8 +239,8 @@ const AppointmentsPage = () => {
               {filteredIncidents.map((incident, index) => {
                 const patient = getPatientById(incident.patientId);
                 return (
-                  <div 
-                    key={incident.id} 
+                  <div
+                    key={incident.id}
                     className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 animate-fade-in-up"
                     style={{ animationDelay: `${300 + index * 100}ms` }}
                   >
@@ -349,8 +349,8 @@ const AppointmentsPage = () => {
                 {filteredIncidents.map((incident, index) => {
                   const patient = getPatientById(incident.patientId);
                   return (
-                    <tr 
-                      key={incident.id} 
+                    <tr
+                      key={incident.id}
                       className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 animate-fade-in-up"
                       style={{ animationDelay: `${300 + index * 100}ms` }}
                     >

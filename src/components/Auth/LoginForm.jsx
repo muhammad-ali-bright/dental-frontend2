@@ -20,11 +20,11 @@ const LoginForm = () => {
     setLoading(true);
 
     try {
-      const success = await login(email, password);
+      const { success, result } = await login(email, password);
       if (success) {
         navigate('/dashboard');
       } else {
-        setError('Invalid email or password');
+        setError(result);
       }
     } catch (err) {
       setError('An error occurred during login');
@@ -57,11 +57,11 @@ const LoginForm = () => {
 
       <div className="max-w-md w-full space-y-8 relative z-10">
         <div className="text-center">
-          <DoctorCharacter 
-            isPasswordVisible={showPassword} 
-            isTypingPassword={isTypingPassword} 
+          <DoctorCharacter
+            isPasswordVisible={showPassword}
+            isTypingPassword={isTypingPassword}
           />
-          
+
           <h2 className="mt-6 text-center text-4xl font-extrabold text-gray-900 tracking-tight">
             ENTNT
           </h2>

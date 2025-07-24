@@ -1,57 +1,121 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getUsers, getCurrentUser, setCurrentUser } from '../utils/storage';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { API } from '../api/axios';
+import { registerAPI, loginAPI, fetchMeAPI } from '../api/auth';
 
-const AuthContext = createContext(undefined);
+const AuthContext = createContext(null);
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+const clearAuthState = () => {
+  delete API.defaults.headers.common['Authorization'];
+  localStorage.removeItem('token');
 };
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const currentUser = getCurrentUser();
-    if (currentUser) {
-      setUser(currentUser);
-      setIsAuthenticated(true);
-    }
+    const initializeAuth = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          // Set token as default header for future requests
+          API.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+          const response = await fetchMeAPI();
+          const { success, result } = response.data;
+          if (success) {
+            const user = result;
+            setUser(user);
+            setIsAuthenticated(true);
+          } else {
+            toast.error(result);
+          }
+        } catch (err) {
+          console.error('Failed to fetch user from token:', err);
+          localStorage.removeItem('token');
+          setUser(null);
+          setIsAuthenticated(false);
+        }
+      }
+
+      setLoading(false);
+    };
+
+    initializeAuth();
   }, []);
 
-  const login = async (email, password) => {
-    const users = getUsers();
-    const foundUser = users.find(u => u.email === email && u.password === password);
-    
-    if (foundUser) {
-      setUser(foundUser);
-      setIsAuthenticated(true);
-      setCurrentUser(foundUser);
-      return true;
+  const register = async (name, email, password, role) => {
+    try {
+      const response = await registerAPI({ name, email, password, role });
+      return response;
+    } catch (err) {
+      console.error('Registration error:', err);
+      return { success: false, message: 'Registration failed. Please try again.' };
     }
-    return false;
   };
 
-  const logout = () => {
-    setUser(null);
-    setIsAuthenticated(false);
-    setCurrentUser(null);
+  const login = async (email, password) => {
+    try {
+      const response = await loginAPI(email, password);
+      debugger;
+      const { success, result } = response.data;
+      if (success) {
+        debugger;
+        const { token, user } = result;
+
+        setUser(user);
+        setIsAuthenticated(true);
+        localStorage.setItem('token', token);
+        API.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        return { success, result };
+      } else {
+        return { success: false, result: "Login Server Error" }
+      }
+      // const user = response.data;
+      // localStorage.setItem('token', user);
+      // API.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+
+    } catch (err) {
+      console.error('Login error:', err);
+      throw new Error('Invalid login credentials');
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await logoutAPI();
+    } catch (err) {
+      console.error('Logout error:', err);
+    } finally {
+      clearAuthState();
+      setUser(null);
+      setIsAuthenticated(false);
+    }
+  };
+
+  const refreshToken = async () => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      API.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    }
   };
 
   const value = {
     user,
+    loading,
+    isAuthenticated,
+    register,
     login,
     logout,
-    isAuthenticated
+    refreshToken,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) throw new Error('useAuth must be used within an AuthProvider');
+  return context;
 };

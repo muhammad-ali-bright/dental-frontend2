@@ -10,16 +10,17 @@ import AppointmentsPage from './pages/AppointmentsPage';
 import CalendarPage from './pages/CalendarPage';
 import PatientDashboardPage from './pages/PatientDashboardPage';
 import PatientAppointmentsPage from './pages/PatientAppointmentsPage';
+import RegisterPage from './pages/RegisterPage';
 
 const DashboardRedirect = () => {
   const { user } = useAuth();
-  
-  if (user?.role === 'Admin') {
+
+  if (user?.role === 'Student') {
     return <DashboardPage />;
-  } else if (user?.role === 'Patient') {
+  } else if (user?.role === 'Professor') {
     return <PatientDashboardPage />;
   }
-  
+
   return <Navigate to="/login" replace />;
 };
 
@@ -30,58 +31,59 @@ function App() {
         <Router>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            
+
             {/* Admin Routes */}
-            <Route 
-              path="/dashboard" 
+            <Route
+              path="/dashboard"
               element={
                 <ProtectedRoute>
                   <DashboardRedirect />
                 </ProtectedRoute>
-              } 
+              }
             />
-            <Route 
-              path="/patients" 
+            <Route
+              path="/patients"
               element={
                 <ProtectedRoute requiredRole="Admin">
                   <PatientsPage />
                 </ProtectedRoute>
-              } 
+              }
             />
-            <Route 
-              path="/appointments" 
+            <Route
+              path="/appointments"
               element={
                 <ProtectedRoute requiredRole="Admin">
                   <AppointmentsPage />
                 </ProtectedRoute>
-              } 
+              }
             />
-            <Route 
-              path="/calendar" 
+            <Route
+              path="/calendar"
               element={
                 <ProtectedRoute requiredRole="Admin">
                   <CalendarPage />
                 </ProtectedRoute>
-              } 
+              }
             />
-            
+
             {/* Patient Routes */}
-            <Route 
-              path="/patient-dashboard" 
+            <Route
+              path="/patient-dashboard"
               element={
                 <ProtectedRoute requiredRole="Patient">
                   <PatientDashboardPage />
                 </ProtectedRoute>
-              } 
+              }
             />
-            <Route 
-              path="/my-appointments" 
+            <Route
+              path="/my-appointments"
               element={
                 <ProtectedRoute requiredRole="Patient">
                   <PatientAppointmentsPage />
                 </ProtectedRoute>
-              } 
+              }
             />
           </Routes>
         </Router>

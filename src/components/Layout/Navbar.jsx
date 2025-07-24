@@ -51,9 +51,9 @@ const Navbar = ({ isDark, onThemeToggle }) => {
   return (
     <nav className={`
       fixed top-0 left-0 right-0 z-50 transition-all duration-300
-      ${isScrolled 
-        ? `${isDark ? 'bg-gray-900/95' : 'bg-white/95'} backdrop-blur-md shadow-lg border-b ${isDark ? 'border-gray-700' : 
-        'border-gray-200'}` 
+      ${isScrolled
+        ? `${isDark ? 'bg-gray-900/95' : 'bg-white/95'} backdrop-blur-md shadow-lg border-b ${isDark ? 'border-gray-700' :
+          'border-gray-200'}`
         : `${isDark ? 'bg-gray-900/80' : 'bg-white/80'} backdrop-blur-sm`
       }
     `}>
@@ -86,8 +86,8 @@ const Navbar = ({ isDark, onThemeToggle }) => {
                         hover:scale-105
                         ${isActive(item.path)
                           ? `${isDark ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-700'} shadow-md`
-                          : `${isDark ? 'text-gray-300 hover:bg-gray-700 hover:text-white' : 
-                          'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}`
+                          : `${isDark ? 'text-gray-300 hover:bg-gray-700 hover:text-white' :
+                            'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}`
                         }
                       `}
                     >
@@ -109,7 +109,7 @@ const Navbar = ({ isDark, onThemeToggle }) => {
               <span className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'} hidden xl:block`}>
                 {user?.name || user?.email}
               </span>
-              <span className={`ml-2 px-2 py-1 text-xs font-medium rounded-full ${isDark ? 'bg-blue-600 text-white' : 
+              <span className={`ml-2 px-2 py-1 text-xs font-medium rounded-full ${isDark ? 'bg-blue-600 text-white' :
                 'bg-blue-100 text-blue-800'}`}>
                 {user?.role}
               </span>
@@ -118,7 +118,7 @@ const Navbar = ({ isDark, onThemeToggle }) => {
               onClick={handleLogout}
               className={`
                 flex items-center px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 transform hover:scale-105
-                ${isDark ? 'text-gray-300 hover:bg-gray-700 hover:text-white' : 
+                ${isDark ? 'text-gray-300 hover:bg-gray-700 hover:text-white' :
                   'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}
               `}
             >
@@ -135,7 +135,7 @@ const Navbar = ({ isDark, onThemeToggle }) => {
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className={`
                 p-2 rounded-md transition-all duration-300
-                ${isDark ? 'text-gray-300 hover:bg-gray-700 hover:text-white' : 
+                ${isDark ? 'text-gray-300 hover:bg-gray-700 hover:text-white' :
                   'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}
               `}
             >
@@ -178,8 +178,8 @@ const Navbar = ({ isDark, onThemeToggle }) => {
                       w-full flex items-center px-3 py-2 rounded-md text-base font-medium transition-all duration-300
                       ${isActive(item.path)
                         ? `${isDark ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-700'} shadow-md`
-                        : `${isDark ? 'text-gray-300 hover:bg-gray-700 hover:text-white' : 
-                        'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}`
+                        : `${isDark ? 'text-gray-300 hover:bg-gray-700 hover:text-white' :
+                          'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}`
                       }
                     `}
                   >
@@ -195,7 +195,7 @@ const Navbar = ({ isDark, onThemeToggle }) => {
                 className={`
                   w-full flex items-center px-3 py-2 rounded-md text-base font-medium transition-all 
                   duration-300 mt-4 border-t ${isDark ? 'border-gray-700' : 'border-gray-200'} pt-4
-                  ${isDark ? 'text-gray-300 hover:bg-gray-700 hover:text-white' : 
+                  ${isDark ? 'text-gray-300 hover:bg-gray-700 hover:text-white' :
                     'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}
                 `}
               >
