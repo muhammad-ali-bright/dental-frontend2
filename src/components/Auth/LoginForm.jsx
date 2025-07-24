@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import toast from "react-hot-toast";
 import DoctorCharacter from './DoctorCharacter';
 
 const LoginForm = () => {
@@ -22,7 +24,10 @@ const LoginForm = () => {
     try {
       const { success, result } = await login(email, password);
       if (success) {
-        navigate('/dashboard');
+        toast.success("Login Successfully");
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 1000);
       } else {
         setError(result);
       }
@@ -37,11 +42,6 @@ const LoginForm = () => {
     setPassword(e.target.value);
     setIsTypingPassword(e.target.value.length > 0);
   };
-
-  const demoAccounts = [
-    { email: 'admin@entnt.in', password: 'admin123', role: 'Admin' },
-    { email: 'john@entnt.in', password: 'patient123', role: 'Patient' },
-  ];
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 
@@ -75,7 +75,7 @@ const LoginForm = () => {
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">
-            <div className="relative">
+            <div className="relative !mb-4">
               <label htmlFor="email" className="sr-only">
                 Email address
               </label>
@@ -99,41 +99,33 @@ const LoginForm = () => {
                 />
               </div>
             </div>
-            <div className="relative">
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  autoComplete="current-password"
-                  required
-                  value={password}
-                  onChange={handlePasswordChange}
-                  className="appearance-none rounded-none relative block w-full px-3 py-3 pl-10 pr-10 border 
-                  border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-2 
-                  focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm transition-all duration-300 
-                  hover:border-blue-400"
-                  placeholder="Password"
-                />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center hover:bg-gray-50 rounded-r-md 
-                  transition-colors duration-200"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                  ) : (
-                    <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                  )}
-                </button>
+            <div className="relative !mb-4">
+              <label htmlFor="password" className="sr-only">Password</label>
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Lock className="h-5 w-5 text-gray-400" />
               </div>
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                autoComplete="current-password"
+                required
+                value={password}
+                onChange={handlePasswordChange}
+                placeholder="Password"
+                className="appearance-none relative block w-full px-3 py-3 pl-10 pr-10 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-300 hover:border-blue-400"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center hover:bg-gray-50 rounded-r-md transition-colors duration-200"
+              >
+                {showPassword ? (
+                  <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                ) : (
+                  <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                )}
+              </button>
             </div>
           </div>
 
@@ -153,9 +145,9 @@ const LoginForm = () => {
               type="submit"
               disabled={loading}
               className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm 
-              font-medium rounded-md text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 
-              hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 
-              disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+                        font-medium rounded-md text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 
+                        hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 
+                        disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
             >
               {loading ? (
                 <div className="flex items-center">
@@ -167,38 +159,18 @@ const LoginForm = () => {
               )}
             </button>
           </div>
-        </form>
-
-        <div className="mt-6">
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 
-              text-gray-500">Demo Accounts</span>
-            </div>
-          </div>
-
-          <div className="mt-4 grid grid-cols-1 gap-3">
-            {demoAccounts.map((account) => (
-              <button
-                key={account.email}
-                onClick={() => {
-                  setEmail(account.email);
-                  setPassword(account.password);
-                  setIsTypingPassword(true);
-                }}
-                className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm 
-                bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-all duration-300 transform 
-                hover:scale-105 hover:shadow-md hover:border-blue-300"
+          <div className="mt-4 text-center">
+            <p className="text-sm text-gray-600">
+              Don’t have an account?{' '}
+              <Link
+                to="/register"
+                className="font-medium text-blue-600 hover:text-blue-500 transition duration-200"
               >
-                <span className="text-blue-600 font-medium">{account.role}</span>
-                <span className="ml-2">- {account.email}</span>
-              </button>
-            ))}
+                Create one
+              </Link>
+            </p>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );

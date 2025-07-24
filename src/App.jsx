@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { DataProvider } from './contexts/DataContext';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
@@ -26,69 +27,81 @@ const DashboardRedirect = () => {
 
 function App() {
   return (
-    <AuthProvider>
-      <DataProvider>
-        <Router>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+    <>
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: '#363636',
+            color: '#fff',
+          },
+        }}
+      />
+      <AuthProvider>
+        <DataProvider>
+          <Router>
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-            {/* Admin Routes */}
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <DashboardRedirect />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/patients"
-              element={
-                <ProtectedRoute requiredRole="Admin">
-                  <PatientsPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/appointments"
-              element={
-                <ProtectedRoute requiredRole="Admin">
-                  <AppointmentsPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/calendar"
-              element={
-                <ProtectedRoute requiredRole="Admin">
-                  <CalendarPage />
-                </ProtectedRoute>
-              }
-            />
+              {/* Admin Routes */}
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <DashboardRedirect />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/patients"
+                element={
+                  <ProtectedRoute requiredRole="Admin">
+                    <PatientsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/appointments"
+                element={
+                  <ProtectedRoute requiredRole="Admin">
+                    <AppointmentsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/calendar"
+                element={
+                  <ProtectedRoute requiredRole="Admin">
+                    <CalendarPage />
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* Patient Routes */}
-            <Route
-              path="/patient-dashboard"
-              element={
-                <ProtectedRoute requiredRole="Patient">
-                  <PatientDashboardPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/my-appointments"
-              element={
-                <ProtectedRoute requiredRole="Patient">
-                  <PatientAppointmentsPage />
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
-        </Router>
-      </DataProvider>
-    </AuthProvider>
+              {/* Patient Routes */}
+              <Route
+                path="/patient-dashboard"
+                element={
+                  <ProtectedRoute requiredRole="Patient">
+                    <PatientDashboardPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/my-appointments"
+                element={
+                  <ProtectedRoute requiredRole="Patient">
+                    <PatientAppointmentsPage />
+                  </ProtectedRoute>
+                }
+              />
+            </Routes>
+          </Router>
+        </DataProvider>
+      </AuthProvider>
+    </>
   );
 }
 

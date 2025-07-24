@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, User, AlertCircle } from 'lucide-react';
 import DoctorCharacter from './DoctorCharacter';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 
 const RegisterForm = () => {
     const [name, setName] = useState('');
@@ -58,16 +58,6 @@ const RegisterForm = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-            <Toaster
-                position="top-center"
-                toastOptions={{
-                    duration: 4000,
-                    style: {
-                        background: '#363636',
-                        color: '#fff',
-                    },
-                }}
-            />
             {/* Background Animation */}
             <div className="absolute inset-0 overflow-hidden">
                 <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200 rounded-full opacity-20 animate-pulse"></div>
@@ -226,6 +216,19 @@ const RegisterForm = () => {
                         </button>
                     </div>
                 </form>
+
+                <div className="mt-4 text-center">
+                    <p className="text-sm text-gray-600">
+                        Already have an account?{' '}
+                        <button
+                            type="button"
+                            onClick={() => navigate('/login')}
+                            className="font-medium text-blue-600 hover:text-blue-500 transition duration-200"
+                        >
+                            Sign in
+                        </button>
+                    </p>
+                </div>
             </div>
         </div>
     );

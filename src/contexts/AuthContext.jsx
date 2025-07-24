@@ -58,10 +58,8 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const response = await loginAPI(email, password);
-      debugger;
       const { success, result } = response.data;
       if (success) {
-        debugger;
         const { token, user } = result;
 
         setUser(user);
@@ -70,7 +68,7 @@ export const AuthProvider = ({ children }) => {
         API.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         return { success, result };
       } else {
-        return { success: false, result: "Login Server Error" }
+        return { success, result }
       }
       // const user = response.data;
       // localStorage.setItem('token', user);
