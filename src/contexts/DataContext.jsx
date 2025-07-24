@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { getPatients, savePatients, getIncidents, saveIncidents } from '../utils/storage';
+import {fetchPatientDropdownAPI} from "../api/patients";
 
 const DataContext = createContext(undefined);
 
@@ -12,12 +13,24 @@ export const useData = () => {
 };
 
 export const DataProvider = ({ children }) => {
+  const [dropdownPatients, setDropdownPatients] = useState([]);
+
+  const loadDropdownPatients = async () => {
+    try {
+      const res = await fetchPatientDropdownAPI();
+      setDropdownPatients(res.data);
+    } catch (err) {
+      console.error('Failed to load dropdown patients', err);
+    }
+  };
+
   const [patients, setPatients] = useState([]);
   const [incidents, setIncidents] = useState([]);
 
   useEffect(() => {
     setPatients(getPatients());
     setIncidents(getIncidents());
+    loadDropdownPatients();
   }, []);
 
   const addIncident = (incidentData) => {
@@ -64,6 +77,7 @@ export const DataProvider = ({ children }) => {
   };
 
   const value = {
+    dropdownPatients,
     incidents,
     addIncident,
     updateIncident,

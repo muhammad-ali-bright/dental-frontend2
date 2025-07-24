@@ -7,6 +7,11 @@ export const fetchPatientsAPI = (data) => {
     });
 };
 
+// api/patients.js
+export const fetchPatientDropdownAPI = () => {
+    return API.get('/patients/dropdown'); // Make sure this matches your backend
+};
+
 // Get a single patient by ID
 export const fetchPatientByIdAPI = (id) => {
     return API.get(`/patients/${id}`);

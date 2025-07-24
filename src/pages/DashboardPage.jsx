@@ -9,21 +9,21 @@ import { Calendar, Users, DollarSign, Activity, Bell, TrendingUp, Clock, AlertTr
 
 const DashboardPage = () => {
   const { user } = useAuth();
-  const { patients, incidents, getUpcomingAppointments } = useData();
+  const { dropdownPatients, incidents, getUpcomingAppointments } = useData();
   const [isLoaded, setIsLoaded] = useState(false);
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
     // Trigger staggered animations
     const timer = setTimeout(() => setIsLoaded(true), 200);
-    
+
     // Generate notifications
     const upcomingToday = incidents.filter(incident => {
       const today = new Date().toDateString();
       const appointmentDate = new Date(incident.appointmentDate).toDateString();
       return appointmentDate === today && incident.status === 'Scheduled';
     });
-    
+
     const overdue = incidents.filter(incident => {
       const now = new Date();
       const appointmentDate = new Date(incident.appointmentDate);
@@ -46,7 +46,7 @@ const DashboardPage = () => {
     ];
 
     setNotifications(newNotifications.slice(0, 5));
-    
+
     return () => clearTimeout(timer);
   }, [incidents]);
 
@@ -74,14 +74,14 @@ const DashboardPage = () => {
     })
     .reduce((sum, apt) => sum + (apt.cost || 0), 0);
 
-  const revenueGrowth = lastMonthRevenue > 0 
+  const revenueGrowth = lastMonthRevenue > 0
     ? ((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue * 100).toFixed(1)
     : '0';
 
   const statsData = [
     {
       title: 'Total Patients',
-      value: patients.length,
+      value: dropdownPatients.length,
       icon: Users,
       color: 'bg-gradient-to-r from-blue-500 to-blue-600',
       trend: { value: '12%', isPositive: true },
@@ -121,7 +121,7 @@ const DashboardPage = () => {
           <div className="relative">
             {/* Floating Background Element */}
             <div className="absolute -top-4 -left-4 w-20 h-20 bg-blue-100 dark:bg-blue-900 rounded-full opacity-20 animate-float animation-delay-500"></div>
-            
+
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white animate-fade-in-right animation-delay-200 relative z-10">
               Welcome back, {user?.name || user?.email}!
             </h1>
@@ -207,7 +207,7 @@ const DashboardPage = () => {
                 <div className="text-sm text-gray-600 dark:text-gray-300">Avg. Treatment Value</div>
               </div>
               <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors duration-300">
-                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{patients.length}</div>
+                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{dropdownPatients.length}</div>
                 <div className="text-sm text-gray-600 dark:text-gray-300">Active Patients</div>
               </div>
             </div>
