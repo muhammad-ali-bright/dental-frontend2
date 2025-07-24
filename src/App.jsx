@@ -58,7 +58,7 @@ function App() {
               <Route
                 path="/patients"
                 element={
-                  <ProtectedRoute requiredRole="Admin">
+                  <ProtectedRoute requiredRole='Student'>
                     <PatientsPage />
                   </ProtectedRoute>
                 }
@@ -66,7 +66,7 @@ function App() {
               <Route
                 path="/appointments"
                 element={
-                  <ProtectedRoute requiredRole="Admin">
+                  <ProtectedRoute requiredRole='Student'>
                     <AppointmentsPage />
                   </ProtectedRoute>
                 }
@@ -74,7 +74,7 @@ function App() {
               <Route
                 path="/calendar"
                 element={
-                  <ProtectedRoute requiredRole="Admin">
+                  <ProtectedRoute requiredRole='Student'>
                     <CalendarPage />
                   </ProtectedRoute>
                 }

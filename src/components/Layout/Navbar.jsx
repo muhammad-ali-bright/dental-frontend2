@@ -41,7 +41,7 @@ const Navbar = ({ isDark, onThemeToggle }) => {
     { path: '/my-appointments', label: 'My Appointments', icon: Calendar },
   ];
 
-  const navItems = user?.role === 'Admin' ? adminNavItems : patientNavItems;
+  const navItems = user?.role === 'Student' ? adminNavItems : patientNavItems;
 
   const handleNavClick = (path) => {
     navigate(path);
