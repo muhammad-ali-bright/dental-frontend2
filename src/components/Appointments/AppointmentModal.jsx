@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Upload, File, Trash2 } from 'lucide-react';
 import { createFileAttachment, formatFileSize } from '../../utils/fileUtils';
+import {useData} from "../../contexts/DataContext";
 
 const AppointmentModal = ({ 
   isOpen, 
@@ -9,6 +10,8 @@ const AppointmentModal = ({
   patients, 
   appointment 
 }) => {
+  const {dropdownPatients} = useData();
+
   const [formData, setFormData] = useState({
     patientId: '',
     title: '',
@@ -120,7 +123,7 @@ const AppointmentModal = ({
                 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               >
                 <option value="">Select Patient</option>
-                {patients.map(patient => (
+                {dropdownPatients.map(patient => (
                   <option key={patient.id} value={patient.id}>
                     {patient.name}
                   </option>
