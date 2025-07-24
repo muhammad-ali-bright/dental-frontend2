@@ -1,5 +1,5 @@
 import axios from 'axios';
-const API_BASE = 'http://localhost:5000/api'; // Or your deployed backend URL
+const API_BASE = 'http://localhost:5001/api'; // Or your deployed backend URL
 
 export const fetchPatients = async () => {
     const res = await axios.get(`${API_BASE}/patients`);
