@@ -1,55 +1,60 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Plus, Edit2, Trash2, Filter, Calendar, Clock, CheckCircle, XCircle, AlertCircle, Download } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Layout from '../components/Layout/Layout';
 import AppointmentModal from '../components/Appointments/AppointmentModal';
 import { useData } from '../contexts/DataContext';
 import { formatDate, formatTime } from '../utils/dateUtils';
-import { createIncidentAPI, updateIncidentAPI } from '../api/appointments';
+import { createIncidentAPI, updateIncidentAPI, getIncidentsAPI, deleteIncidentAPI, updateIncidentStatusAPI } from '../api/appointments';
 import PaginationFooter from "../components/Layout/PaginationFooter";
 
 
 const AppointmentsPage = () => {
-  const { incidents, patients, addIncident, updateIncident, deleteIncident, getPatientById } = useData();
+  const { patients, updateIncident } = useData();
+  const [incidents, setIncidents] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedIncident, setSelectedIncident] = useState(undefined);
 
+  const [completedCount, setCompletedCount] = useState(0);
+  const [todayCount, setTodayCount] = useState(0);
+  const [overdueCount, setOverdueCount] = useState(0);
+
   // Pagination
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
-  const filteredIncidents = incidents.filter(incident => {
-    const patient = getPatientById(incident.patientId);
-    const matchesSearch = incident.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      patient?.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || incident.status === statusFilter;
 
-    let matchesDate = true;
-    const appointmentDate = new Date(incident.appointmentDate);
-    const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(today.getDate() + 1);
-    const nextWeek = new Date(today);
-    nextWeek.setDate(today.getDate() + 7);
+  useEffect(() => {
+    loadIncidents();
+  }, [currentPage, pageSize, statusFilter, dateFilter, searchTerm]);
 
-    if (dateFilter === 'today') {
-      matchesDate = appointmentDate.toDateString() === today.toDateString();
-    } else if (dateFilter === 'tomorrow') {
-      matchesDate = appointmentDate.toDateString() === tomorrow.toDateString();
-    } else if (dateFilter === 'week') {
-      matchesDate = appointmentDate >= today && appointmentDate <= nextWeek;
-    } else if (dateFilter === 'overdue') {
-      matchesDate = appointmentDate < today && incident.status === 'Scheduled';
+  const loadIncidents = async () => {
+    try {
+      const { data } = await getIncidentsAPI(currentPage, pageSize, statusFilter, dateFilter, searchTerm);
+      console.log(data);
+      // Calculate how many pages are available based on the new total
+      const newTotalPages = Math.max(1, Math.ceil(data.totalCount / pageSize));
+
+      // If the current page is now invalid (e.g. 2 > 1), move back to valid page
+      if (currentPage > newTotalPages) {
+        setCurrentPage(newTotalPages);
+      } else {
+        setIncidents(data.incidents);
+        setTotalCount(data.totalCount);
+        setCompletedCount(data.completedCount);
+        setTodayCount(data.todayCount);
+        setOverdueCount(data.overdueCount);
+      }
+    } catch (err) {
+      console.error("Failed to fetch appointments", err);
+      toast.error("Could not load appointments");
     }
-
-    return matchesSearch && matchesStatus && matchesDate;
-  });
+  };
 
   const handleAddIncident = () => {
     setSelectedIncident(undefined);
@@ -61,9 +66,16 @@ const AppointmentsPage = () => {
     setIsModalOpen(true);
   };
 
-  const handleDeleteIncident = (incidentId) => {
+  const handleDeleteIncident = async (incidentId) => {
     if (window.confirm('Are you sure you want to delete this appointment?')) {
-      deleteIncident(incidentId);
+      try {
+        await deleteIncidentAPI(incidentId);
+        toast.success('Appointment deleted successfully');
+        loadIncidents(); // Refresh the list
+      } catch (err) {
+        console.error('Failed to delete appointment:', err);
+        toast.error('Could not delete appointment');
+      }
     }
   };
 
@@ -79,21 +91,27 @@ const AppointmentsPage = () => {
 
       // Close modal, reset state, or refresh list
       setIsModalOpen(false);
-      // fetchIncidents(); // if you have this
+      loadIncidents();
     } catch (err) {
       console.error("Error saving incident:", err);
       toast.error("Failed to save incident");
     }
   };
 
-  const handleQuickStatusUpdate = (incidentId, newStatus) => {
-    updateIncident(incidentId, { status: newStatus });
+  const handleQuickStatusUpdate = async (incidentId, newStatus) => {
+    try {
+      await updateIncidentStatusAPI(incidentId, { status: newStatus });
+      toast.success('Appointment status updated');
+      loadIncidents();
+    } catch (err) {
+      console.error('Failed to update status:', err);
+      toast.error('Could not update status');
+    }
   };
-
   // const handleExportAppointments = () => {
   //   const csvContent = [
   //     ['Patient', 'Title', 'Date', 'Time', 'Status', 'Cost', 'Treatment'],
-  //     ...filteredIncidents.map(incident => {
+  //     ...incidents.map(incident => {
   //       const patient = getPatientById(incident.patientId);
   //       return [
   //         patient?.name || 'Unknown',
@@ -147,6 +165,7 @@ const AppointmentsPage = () => {
     return new Date(apt.appointmentDate) < now && apt.status === 'Scheduled';
   }).length;
 
+
   return (
     <Layout>
       <div className="px-4 sm:px-6 lg:px-8">
@@ -183,21 +202,21 @@ const AppointmentsPage = () => {
         {/* Appointment Statistics */}
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{incidents.length}</div>
+            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{totalCount}</div>
             <div className="text-sm text-gray-600 dark:text-gray-300">Total Appointments</div>
           </div>
           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="text-2xl font-bold text-green-600 dark:text-green-400">{todayAppointments}</div>
+            <div className="text-2xl font-bold text-green-600 dark:text-green-400">{todayCount}</div>
             <div className="text-sm text-gray-600 dark:text-gray-300">Today's Appointments</div>
           </div>
           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
             <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-              {incidents.filter(apt => apt.status === 'Completed').length}
+              {completedCount}
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-300">Completed</div>
           </div>
           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="text-2xl font-bold text-red-600 dark:text-red-400">{overdueAppointments}</div>
+            <div className="text-2xl font-bold text-red-600 dark:text-red-400">{overdueCount}</div>
             <div className="text-sm text-gray-600 dark:text-gray-300">Overdue</div>
           </div>
         </div>
@@ -270,8 +289,8 @@ const AppointmentsPage = () => {
           {/* Mobile Card View */}
           <div className="block lg:hidden">
             <div className="divide-y divide-gray-200 dark:divide-gray-700">
-              {filteredIncidents.map((incident, index) => {
-                const patient = getPatientById(incident.patientId);
+              {incidents.map((incident, index) => {
+                const patient = incident.patient;
                 return (
                   <div
                     key={incident.id}
@@ -302,7 +321,7 @@ const AppointmentsPage = () => {
                             <span className="font-medium">Cost:</span> {incident.cost ? `$${incident.cost.toFixed(2)}` : '-'}
                           </div>
                           <div>
-                            <span className="font-medium">Files:</span> {incident.files.length}
+                            {/* <span className="font-medium">Files:</span> {incident.files.length} */}
                           </div>
                         </div>
                         <div className="mt-2 flex items-center justify-between">
@@ -369,9 +388,6 @@ const AppointmentsPage = () => {
                     Cost
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Files
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Quick Actions
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -380,8 +396,8 @@ const AppointmentsPage = () => {
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                {filteredIncidents.map((incident, index) => {
-                  const patient = getPatientById(incident.patientId);
+                {incidents.map((incident, index) => {
+                  const patient = incident.patient;
                   return (
                     <tr
                       key={incident.id}
@@ -417,9 +433,6 @@ const AppointmentsPage = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                         {incident.cost ? `$${incident.cost.toFixed(2)}` : '-'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                        {incident.files.length} files
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex space-x-2">
@@ -464,7 +477,7 @@ const AppointmentsPage = () => {
             </table>
           </div>
 
-          {filteredIncidents.length === 0 && (
+          {incidents.length === 0 && (
             <div className="text-center py-12">
               <p className="text-gray-500 dark:text-gray-400">No appointments found</p>
             </div>

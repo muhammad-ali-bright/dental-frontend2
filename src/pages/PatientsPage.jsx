@@ -33,6 +33,16 @@ const PatientsPage = () => {
 
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      if (user) {
+        fetchPatients();
+      }
+    }, 300); // 300ms debounce
+
+    return () => clearTimeout(delayDebounce);
+  }, [searchTerm, currentPage, pageSize, sortField, sortOrder, user?.role, user?.id]);
+
   const fetchPatients = async () => {
     try {
       const { data } = await fetchPatientsAPI({
@@ -118,15 +128,7 @@ const PatientsPage = () => {
     window.open(`mailto:${email}`);
   };
 
-  useEffect(() => {
-    const delayDebounce = setTimeout(() => {
-      if (user) {
-        fetchPatients();
-      }
-    }, 300); // 300ms debounce
 
-    return () => clearTimeout(delayDebounce);
-  }, [searchTerm, currentPage, pageSize, sortField, sortOrder, user?.role, user?.id]);
 
   return (
     <Layout>

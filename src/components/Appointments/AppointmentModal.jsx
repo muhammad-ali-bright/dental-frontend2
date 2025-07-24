@@ -53,7 +53,7 @@ const AppointmentModal = ({
         files: []
       });
     }
-  }, [appointment]);
+  }, [isOpen]);
 
   const handleUploadedFile = async (e) => {
     const files = Array.from(e.target.files || []);
@@ -247,7 +247,7 @@ const AppointmentModal = ({
             </div>
           </div>
 
-          <div>
+          {/* <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               File Attachments
             </label>
@@ -290,7 +290,7 @@ const AppointmentModal = ({
                 ))}
               </div>
             )}
-          </div>
+          </div> */}
 
           <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 pt-4">
             <button
