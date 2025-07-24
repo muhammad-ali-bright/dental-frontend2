@@ -1,9 +1,18 @@
 import React, { useState } from 'react';
+import { ChevronUp, ChevronDown } from 'lucide-react';
 import { Search, Plus, Edit2, Trash2, Filter, Download, FileText, Phone, Mail } from 'lucide-react';
+import toast from "react-hot-toast";
+
 import Layout from '../components/Layout/Layout';
 import PatientModal from '../components/Patients/PatientModal';
 import { useData } from '../contexts/DataContext';
 import { formatDate } from '../utils/dateUtils';
+
+import {
+  createPatientAPI,
+  updatePatientAPI,
+  fetchPatientsAPI,
+} from '../api/patients';
 
 const PatientsPage = () => {
   const { patients, addPatient, updatePatient, deletePatient, getPatientIncidents } = useData();
@@ -11,21 +20,29 @@ const PatientsPage = () => {
   const [ageFilter, setAgeFilter] = useState('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(undefined);
+  // Pagination
+  const [pageSize, setPageSize] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortField, setSortField] = useState('name'); // or 'createdAt'
+  const [sortOrder, setSortOrder] = useState('desc');
 
   const filteredPatients = patients.filter(patient => {
     const matchesSearch = patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         patient.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         patient.contact.includes(searchTerm);
-    
+      patient.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      patient.contact.includes(searchTerm);
+
     const age = new Date().getFullYear() - new Date(patient.dob).getFullYear();
     let matchesAge = true;
-    
+
     if (ageFilter === 'child') matchesAge = age < 18;
     else if (ageFilter === 'adult') matchesAge = age >= 18 && age < 65;
     else if (ageFilter === 'senior') matchesAge = age >= 65;
-    
+
     return matchesSearch && matchesAge;
   });
+
+  const totalPages = Math.ceil(filteredPatients.length / pageSize);
+
 
   const handleAddPatient = () => {
     setSelectedPatient(undefined);
@@ -43,11 +60,26 @@ const PatientsPage = () => {
     }
   };
 
-  const handleSavePatient = (patientData) => {
-    if (selectedPatient) {
-      updatePatient(selectedPatient.id, patientData);
-    } else {
-      addPatient(patientData);
+  const normalizePatientPayload = (data) => ({
+    ...data,
+    dob: new Date(data.dob).toISOString(),
+  });
+
+  const handleSavePatient = async (patientData) => {
+    try {
+      const payload = normalizePatientPayload(patientData);
+      if (selectedPatient) {
+        await updatePatientAPI(selectedPatient.id, payload);
+        toast.success("Updated Successfully");
+      } else {
+        await createPatientAPI(payload);
+        toast.success("Created Successfully")
+      }
+
+      setIsModalOpen(false);
+    } catch (err) {
+      console.error('Error saving patient:', err);
+      toast.error('Failed to save patient.');
     }
   };
 
@@ -137,8 +169,8 @@ const PatientsPage = () => {
 
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
           <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div className="relative max-w-md flex-1">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+              <div className="relative flex-1 max-w-md">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Search className="h-5 w-5 text-gray-400" />
                 </div>
@@ -147,21 +179,42 @@ const PatientsPage = () => {
                   placeholder="Search patients..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md leading-5 bg-white dark:bg-gray-700 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-gray-900 dark:text-white transition-all duration-300"
+                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 placeholder-gray-500 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 />
               </div>
-              <div className="flex items-center space-x-2">
-                <Filter className="w-4 h-4 text-gray-400" />
+
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                {/* Page size */}
                 <select
-                  value={ageFilter}
-                  onChange={(e) => setAgeFilter(e.target.value)}
-                  className="border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all duration-300"
+                  value={pageSize}
+                  onChange={(e) => {
+                    setPageSize(Number(e.target.value));
+                    setCurrentPage(1);
+                  }}
+                  className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                 >
-                  <option value="all">All Ages</option>
-                  <option value="child">Children (&lt;18)</option>
-                  <option value="adult">Adults (18-64)</option>
-                  <option value="senior">Seniors (65+)</option>
+                  {[5, 10, 25, 50].map((size) => (
+                    <option key={size} value={size}>{size} / page</option>
+                  ))}
                 </select>
+
+                <select
+                  value={sortField}
+                  onChange={(e) => setSortField(e.target.value)}
+                  className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                >
+                  <option value="name">Sort by Name</option>
+                  <option value="createdAt">Sort by Created At</option>
+                </select>
+
+                {/* Toggle Icon for Sort Order */}
+                <button
+                  onClick={() => setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'))}
+                  className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  title={`Sort ${sortOrder === 'asc' ? 'Descending' : 'Ascending'}`}
+                >
+                  {sortOrder === 'asc' ? '▲' : '▼'}
+                </button>
               </div>
             </div>
           </div>
@@ -172,15 +225,15 @@ const PatientsPage = () => {
               {filteredPatients.map((patient, index) => {
                 const patientIncidents = getPatientIncidents(patient.id);
                 const completedIncidents = patientIncidents.filter(i => i.status === 'Completed');
-                const lastVisit = completedIncidents.length > 0 
+                const lastVisit = completedIncidents.length > 0
                   ? completedIncidents.sort((a, b) => new Date(b.appointmentDate).getTime() - new Date(a.appointmentDate).getTime())[0]
                   : null;
 
                 const age = new Date().getFullYear() - new Date(patient.dob).getFullYear();
 
                 return (
-                  <div 
-                    key={patient.id} 
+                  <div
+                    key={patient.id}
                     className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 animate-fade-in-up"
                     style={{ animationDelay: `${300 + index * 100}ms` }}
                   >
@@ -276,15 +329,15 @@ const PatientsPage = () => {
                 {filteredPatients.map((patient, index) => {
                   const patientIncidents = getPatientIncidents(patient.id);
                   const completedIncidents = patientIncidents.filter(i => i.status === 'Completed');
-                  const lastVisit = completedIncidents.length > 0 
+                  const lastVisit = completedIncidents.length > 0
                     ? completedIncidents.sort((a, b) => new Date(b.appointmentDate).getTime() - new Date(a.appointmentDate).getTime())[0]
                     : null;
 
                   const age = new Date().getFullYear() - new Date(patient.dob).getFullYear();
 
                   return (
-                    <tr 
-                      key={patient.id} 
+                    <tr
+                      key={patient.id}
                       className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 animate-fade-in-up"
                       style={{ animationDelay: `${300 + index * 100}ms` }}
                     >
@@ -358,6 +411,35 @@ const PatientsPage = () => {
             </div>
           )}
         </div>
+
+        {/* Pagination Controls */}
+        <div className="flex items-center justify-between mt-6 text-sm text-gray-700 dark:text-gray-300">
+          <div>
+            Showing {(currentPage - 1) * pageSize + 1} to{' '}
+            {Math.min(currentPage * pageSize, filteredPatients.length)} of{' '}
+            {filteredPatients.length} results
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 transition"
+            >
+              Prev
+            </button>
+            <span>
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 transition"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+
 
         <PatientModal
           isOpen={isModalOpen}

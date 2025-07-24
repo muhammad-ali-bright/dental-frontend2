@@ -70,9 +70,6 @@ export const AuthProvider = ({ children }) => {
       } else {
         return { success, result }
       }
-      // const user = response.data;
-      // localStorage.setItem('token', user);
-      // API.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
 
     } catch (err) {
       console.error('Login error:', err);
