@@ -5,8 +5,9 @@ import Layout from '../components/Layout/Layout';
 import AppointmentModal from '../components/Appointments/AppointmentModal';
 import { useData } from '../contexts/DataContext';
 import { formatDate, formatTime } from '../utils/dateUtils';
-
 import { createIncidentAPI, updateIncidentAPI } from '../api/appointments';
+import PaginationFooter from "../components/Layout/PaginationFooter";
+
 
 const AppointmentsPage = () => {
   const { incidents, patients, addIncident, updateIncident, deleteIncident, getPatientById } = useData();
@@ -15,6 +16,13 @@ const AppointmentsPage = () => {
   const [dateFilter, setDateFilter] = useState('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedIncident, setSelectedIncident] = useState(undefined);
+
+  // Pagination
+  const [pageSize, setPageSize] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
   const filteredIncidents = incidents.filter(incident => {
     const patient = getPatientById(incident.patientId);
@@ -82,31 +90,31 @@ const AppointmentsPage = () => {
     updateIncident(incidentId, { status: newStatus });
   };
 
-  const handleExportAppointments = () => {
-    const csvContent = [
-      ['Patient', 'Title', 'Date', 'Time', 'Status', 'Cost', 'Treatment'],
-      ...filteredIncidents.map(incident => {
-        const patient = getPatientById(incident.patientId);
-        return [
-          patient?.name || 'Unknown',
-          incident.title,
-          formatDate(incident.appointmentDate),
-          formatTime(incident.appointmentDate),
-          incident.status,
-          incident.cost || 0,
-          incident.treatment || ''
-        ];
-      })
-    ].map(row => row.join(',')).join('\n');
+  // const handleExportAppointments = () => {
+  //   const csvContent = [
+  //     ['Patient', 'Title', 'Date', 'Time', 'Status', 'Cost', 'Treatment'],
+  //     ...filteredIncidents.map(incident => {
+  //       const patient = getPatientById(incident.patientId);
+  //       return [
+  //         patient?.name || 'Unknown',
+  //         incident.title,
+  //         formatDate(incident.appointmentDate),
+  //         formatTime(incident.appointmentDate),
+  //         incident.status,
+  //         incident.cost || 0,
+  //         incident.treatment || ''
+  //       ];
+  //     })
+  //   ].map(row => row.join(',')).join('\n');
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'appointments_export.csv';
-    a.click();
-    window.URL.revokeObjectURL(url);
-  };
+  //   const blob = new Blob([csvContent], { type: 'text/csv' });
+  //   const url = window.URL.createObjectURL(blob);
+  //   const a = document.createElement('a');
+  //   a.href = url;
+  //   a.download = 'appointments_export.csv';
+  //   a.click();
+  //   window.URL.revokeObjectURL(url);
+  // };
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -149,7 +157,7 @@ const AppointmentsPage = () => {
               <p className="text-gray-600 dark:text-gray-300 mt-1 text-sm sm:text-base">Manage patient appointments and treatments</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-2">
-              <button
+              {/* <button
                 onClick={handleExportAppointments}
                 className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 
                 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white 
@@ -157,7 +165,7 @@ const AppointmentsPage = () => {
               >
                 <Download className="w-4 h-4 mr-2" />
                 Export CSV
-              </button>
+              </button> */}
               <button
                 onClick={handleAddIncident}
                 className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium 
@@ -242,6 +250,18 @@ const AppointmentsPage = () => {
                   <option value="tomorrow">Tomorrow</option>
                   <option value="week">This Week</option>
                   <option value="overdue">Overdue</option>
+                </select>
+                <select
+                  value={pageSize}
+                  onChange={(e) => {
+                    setPageSize(Number(e.target.value));
+                    setCurrentPage(1);
+                  }}
+                  className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                >
+                  {[5, 10, 25, 50].map((size) => (
+                    <option key={size} value={size}>{size} / page</option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -450,6 +470,14 @@ const AppointmentsPage = () => {
             </div>
           )}
         </div>
+
+        <PaginationFooter
+          currentPage={currentPage}
+          totalPages={totalPages}
+          pageSize={pageSize}
+          totalCount={totalCount}
+          onPageChange={(page) => setCurrentPage(page)}
+        />
 
         <AppointmentModal
           isOpen={isModalOpen}
