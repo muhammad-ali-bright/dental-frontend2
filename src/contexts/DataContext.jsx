@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { fetchPatientDropdownAPI } from "../api/patients";
+import { useAuth } from './AuthContext';
 
 const DataContext = createContext(undefined);
 
@@ -20,6 +21,7 @@ export const DataProvider = ({ children }) => {
   const [todayCount, setTodayCount] = useState(0);
   const [completedCount, setCompletedCount] = useState(0);
   const [overdueCount, setOverdueCount] = useState(0);
+  const { isAuthenticated } = useAuth();
 
   const loadDropdownPatients = async () => {
     try {
@@ -31,11 +33,13 @@ export const DataProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    loadDropdownPatients();
-  }, []);
+    if (isAuthenticated) {
+      loadDropdownPatients();
+    }
+  }, [isAuthenticated]);
 
   const value = {
-    incidents, 
+    incidents,
     setIncidents,
     todayIncidents,
     setTodayIncidents,
