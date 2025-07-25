@@ -175,7 +175,7 @@ const DashboardPage = () => {
           <div className="transform transition-all duration-500 hover:scale-105 hover-lift animate-fade-in-left animation-delay-700">
             <div className="relative overflow-hidden rounded-lg hover:shadow-xl transition-shadow duration-300">
               <AppointmentsList
-                appointments={upcomingAppointments}
+                appointments={[]}
                 title="Upcoming Appointments"
               />
             </div>
@@ -183,7 +183,7 @@ const DashboardPage = () => {
           <div className="transform transition-all duration-500 hover:scale-105 hover-lift animate-fade-in-right animation-delay-800">
             <div className="relative overflow-hidden rounded-lg hover:shadow-xl transition-shadow duration-300">
               <AppointmentsList
-                appointments={completedAppointments.slice(0, 10)}
+                appointments={[]}
                 title="Recent Completed Appointments"
               />
             </div>
