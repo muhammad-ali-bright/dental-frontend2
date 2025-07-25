@@ -6,7 +6,7 @@ import Layout from '../components/Layout/Layout';
 import PatientModal from '../components/Patients/PatientModal';
 import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
-import { formatDate } from '../utils/dateUtils';
+import { formatDateTime } from '../utils/dateUtils';
 
 import {
   createPatientAPI,
@@ -15,11 +15,13 @@ import {
   deletePatientAPI,
 } from '../api/patients';
 
+import { fetchPatientIncidentsAPI } from "../api/appointments";
+
 import PaginationFooter from '../components/Layout/PaginationFooter';
 
 const PatientsPage = () => {
   const { user } = useAuth();
-  const { getPatientIncidents, setDropdownPatients } = useData();
+  const { setDropdownPatients } = useData();
   const [patients, setPatients] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
   const [childrenCount, setChildrenCount] = useState(0);
@@ -28,6 +30,8 @@ const PatientsPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(undefined);
+  const [incidentSummaries, setIncidentSummaries] = useState({});
+
   // Pagination
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
@@ -38,10 +42,49 @@ const PatientsPage = () => {
 
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
-      if (user) {
-        fetchPatients();
-      }
-    }, 300); // 300ms debounce
+      const fetchAllData = async () => {
+        if (!user) return;
+
+        try {
+          // 1. Fetch Patients
+          const { data } = await fetchPatientsAPI({
+            page: currentPage,
+            limit: pageSize,
+            search: searchTerm,
+            sort: sortField,
+            order: sortOrder,
+            role: "Student"
+          });
+
+          const newTotalPages = Math.max(1, Math.ceil(data.totalCount / pageSize));
+          if (currentPage > newTotalPages) {
+            setCurrentPage(newTotalPages);
+          } else {
+            setPatients(data.patients);
+            setTotalCount(data.totalCount);
+          }
+
+          // 2. Fetch Incident Summaries for Each Patient
+          const summaries = {};
+          for (const patient of data.patients) {
+            try {
+              const res = await fetchPatientIncidentsAPI(patient.id);
+              summaries[patient.id] = res.data;
+            } catch (err) {
+              console.error(`Failed to fetch incidents for ${patient.name}:`, err);
+            }
+          }
+
+          setIncidentSummaries(summaries);
+
+        } catch (err) {
+          console.error('Failed to fetch patients or incidents', err);
+          toast.error('Could not load patients or incident summaries');
+        }
+      };
+
+      fetchAllData();
+    }, 300); // debounce
 
     return () => clearTimeout(delayDebounce);
   }, [searchTerm, currentPage, pageSize, sortField, sortOrder, user?.role, user?.id]);
@@ -133,8 +176,6 @@ const PatientsPage = () => {
   const handleEmailPatient = (email) => {
     window.open(`mailto:${email}`);
   };
-
-
 
   return (
     <Layout>
@@ -239,14 +280,11 @@ const PatientsPage = () => {
           <div className="block lg:hidden">
             <div className="divide-y divide-gray-200 dark:divide-gray-700">
               {patients.map((patient, index) => {
-                const patientIncidents = getPatientIncidents(patient.id);
-                const completedIncidents = patientIncidents.filter(i => i.status === 'Completed');
-                const lastVisit = completedIncidents.length > 0
-                  ? completedIncidents.sort((a, b) => new Date(b.appointmentDate).getTime() - new Date(a.appointmentDate).getTime())[0]
-                  : null;
-
-                const age = new Date().getFullYear() - new Date(patient.dob).getFullYear();
-
+                const summary = incidentSummaries[patient.id];
+                const totalIncidents = summary?.totalIncidents || 0;
+                const nextVisit = summary?.nextScheduledAppointment
+                  ? formatDateTime(summary.nextScheduledAppointment)
+                  : 'No visits';
                 return (
                   <div
                     key={patient.id}
@@ -276,10 +314,10 @@ const PatientsPage = () => {
                             }
                           </div>
                           <div>
-                            <span className="font-medium">Appointments:</span> {patientIncidents.length}
+                            <span className="font-medium">Appointments:</span> {totalIncidents}
                           </div>
                           <div>
-                            <span className="font-medium">Last Visit:</span> {lastVisit ? formatDate(lastVisit.appointmentDate) : 'No visits'}
+                            <span className="font-medium">First Upcoming:</span> {nextVisit}
                           </div>
                         </div>
                         <div className="mt-2 flex space-x-2">
@@ -338,7 +376,7 @@ const PatientsPage = () => {
                     Appointments
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Last Visit
+                    First Upcoming
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Quick Actions
@@ -350,13 +388,11 @@ const PatientsPage = () => {
               </thead>
               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                 {patients.map((patient, index) => {
-                  const patientIncidents = getPatientIncidents(patient.id);
-                  const completedIncidents = patientIncidents.filter(i => i.status === 'Completed');
-                  const lastVisit = completedIncidents.length > 0
-                    ? completedIncidents.sort((a, b) => new Date(b.appointmentDate).getTime() - new Date(a.appointmentDate).getTime())[0]
-                    : null;
-
-                  const age = new Date().getFullYear() - new Date(patient.dob).getFullYear();
+                  const summary = incidentSummaries[patient.id];
+                  const totalIncidents = summary?.totalIncidents || 0;
+                  const nextVisit = summary?.nextScheduledAppointment
+                    ? formatDateTime(summary.nextScheduledAppointment)
+                    : 'No visits';
 
                   return (
                     <tr
@@ -386,10 +422,10 @@ const PatientsPage = () => {
                         })}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                        {patientIncidents.length} total
+                        {totalIncidents} total
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                        {lastVisit ? formatDate(lastVisit.appointmentDate) : 'No visits'}
+                        {nextVisit}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex space-x-2">

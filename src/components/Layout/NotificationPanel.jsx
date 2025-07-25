@@ -19,25 +19,25 @@ const NotificationPanel = () => {
       const newNotifications = [];
 
       // Today's appointments
-      const todayAppointments = incidents.filter(incident => {
-        const appointmentDate = new Date(incident.appointmentDate).toDateString();
-        return appointmentDate === today && incident.status === 'Scheduled';
-      });
+      // const todayAppointments = incidents.filter(incident => {
+      //   const appointmentDate = new Date(incident.appointmentDate).toDateString();
+      //   return appointmentDate === today && incident.status === 'Scheduled';
+      // });
 
-      todayAppointments.forEach(apt => {
-        const patient = getPatientById(apt.patientId);
-        newNotifications.push({
-          id: `today-${apt.id}`,
-          type: 'info',
-          icon: Calendar,
-          title: 'Appointment Today',
-          message: user?.role === 'Admin' 
-            ? `${patient?.name || 'Patient'} - ${apt.title} at ${formatTime(apt.appointmentDate)}`
-            : `${apt.title} at ${formatTime(apt.appointmentDate)}`,
-          time: formatTime(apt.appointmentDate),
-          priority: 'high'
-        });
-      });
+      // todayAppointments.forEach(apt => {
+      //   const patient = getPatientById(apt.patientId);
+      //   newNotifications.push({
+      //     id: `today-${apt.id}`,
+      //     type: 'info',
+      //     icon: Calendar,
+      //     title: 'Appointment Today',
+      //     message: user?.role === 'Admin' 
+      //       ? `${patient?.name || 'Patient'} - ${apt.title} at ${formatTime(apt.appointmentDate)}`
+      //       : `${apt.title} at ${formatTime(apt.appointmentDate)}`,
+      //     time: formatTime(apt.appointmentDate),
+      //     priority: 'high'
+      //   });
+      // });
 
       // Tomorrow's appointments
       const tomorrowAppointments = incidents.filter(incident => {

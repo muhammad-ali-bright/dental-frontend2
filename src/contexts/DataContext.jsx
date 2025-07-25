@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getPatients, savePatients, getIncidents, saveIncidents } from '../utils/storage';
 import { fetchPatientDropdownAPI } from "../api/patients";
 
 const DataContext = createContext(undefined);
@@ -15,6 +14,12 @@ export const useData = () => {
 export const DataProvider = ({ children }) => {
   const [dropdownPatients, setDropdownPatients] = useState([]);
   const [todayIncidentsCount, setTodayIncidentsCount] = useState(0);
+  const [todayIncidents, setTodayIncidents] = useState([]);
+  const [incidents, setIncidents] = useState([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [todayCount, setTodayCount] = useState(0);
+  const [completedCount, setCompletedCount] = useState(0);
+  const [overdueCount, setOverdueCount] = useState(0);
 
   const loadDropdownPatients = async () => {
     try {
@@ -25,70 +30,27 @@ export const DataProvider = ({ children }) => {
     }
   };
 
-  const [patients, setPatients] = useState([]);
-  const [incidents, setIncidents] = useState([]);
-
   useEffect(() => {
-    // setPatients(getPatients());
-    // setIncidents(getIncidents());
     loadDropdownPatients();
   }, []);
 
-  const addIncident = (incidentData) => {
-    const newIncident = {
-      ...incidentData,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    const updatedIncidents = [...incidents, newIncident];
-    setIncidents(updatedIncidents);
-    saveIncidents(updatedIncidents);
-  };
-
-  const updateIncident = (id, incidentData) => {
-    const updatedIncidents = incidents.map(incident =>
-      incident.id === id
-        ? { ...incident, ...incidentData, updatedAt: new Date().toISOString() }
-        : incident
-    );
-    setIncidents(updatedIncidents);
-    saveIncidents(updatedIncidents);
-  };
-
-  const deleteIncident = (id) => {
-    const updatedIncidents = incidents.filter(incident => incident.id !== id);
-    setIncidents(updatedIncidents);
-    saveIncidents(updatedIncidents);
-  };
-
-  const getPatientIncidents = (patientId) => {
-    return incidents.filter(incident => incident.patientId === patientId);
-  };
-
-  const getUpcomingAppointments = (limit = 10) => {
-    const upcoming = incidents
-      .filter(incident => new Date(incident.appointmentDate) > new Date())
-      .sort((a, b) => new Date(a.appointmentDate).getTime() - new Date(b.appointmentDate).getTime());
-    return limit ? upcoming.slice(0, limit) : upcoming;
-  };
-
-  const getPatientById = (id) => {
-    return patients.find(patient => patient.id === id);
-  };
-
   const value = {
-    todayIncidentsCount,
-    setTodayIncidentsCount,
+    incidents, 
+    setIncidents,
+    todayIncidents,
+    setTodayIncidents,
+    todayIncidentsCount,  // incidents
+    setTodayIncidentsCount, // incidents
+    todayCount,
+    setTodayCount,
+    totalCount,  // incidents
+    setTotalCount,  // incidents
+    completedCount,  // incidents
+    setCompletedCount,  // incidents
+    overdueCount,  // incidents
+    setOverdueCount,  // incidents
     dropdownPatients,
     setDropdownPatients,
-    incidents,
-    addIncident,
-    updateIncident,
-    deleteIncident,
-    getPatientIncidents,
-    getUpcomingAppointments,
-    getPatientById
   };
 
   return (

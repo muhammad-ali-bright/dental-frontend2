@@ -9,7 +9,7 @@ import { Calendar, Users, DollarSign, Activity, Bell, TrendingUp, Clock, AlertTr
 
 const DashboardPage = () => {
   const { user } = useAuth();
-  const { dropdownPatients, incidents, getUpcomingAppointments, todayIncidentsCount } = useData();
+  const { dropdownPatients, incidents, todayIncidentsCount } = useData();
   const [isLoaded, setIsLoaded] = useState(false);
   const [notifications, setNotifications] = useState([]);
 
@@ -50,7 +50,7 @@ const DashboardPage = () => {
     return () => clearTimeout(timer);
   }, [incidents]);
 
-  const upcomingAppointments = getUpcomingAppointments(10);
+  const upcomingAppointments = [];
   const completedAppointments = incidents.filter(i => i.status === 'Completed');
   const totalRevenue = completedAppointments.reduce((sum, incident) => sum + (incident.cost || 0), 0);
   const pendingAppointments = incidents.filter(i => i.status === 'Scheduled' || i.status === 'In Progress');

@@ -10,30 +10,21 @@ import PaginationFooter from "../components/Layout/PaginationFooter";
 
 
 const AppointmentsPage = () => {
-  const { patients, setTodayIncidentsCount } = useData();
-  const [incidents, setIncidents] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [dateFilter, setDateFilter] = useState('all');
+  const { setTodayIncidentsCount, todayIncidents, setTodayIncidents, incidents, setIncidents, totalCount, setTotalCount, overdueCount, setOverdueCount, completedCount, setCompletedCount, dropdownPatients } = useData();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedIncident, setSelectedIncident] = useState(undefined);
 
-  const [completedCount, setCompletedCount] = useState(0);
-  const [todayCount, setTodayCount] = useState(0);
-  const [overdueCount, setOverdueCount] = useState(0);
-
-  // Pagination
+  // Pagination Settings
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [dateFilter, setDateFilter] = useState('all');
 
-  useEffect(() => {
-    loadIncidents();
-  }, [currentPage, pageSize, statusFilter, dateFilter, searchTerm]);
-
-  const loadIncidents = async () => {
+  const fetchIncidents = async () => {
     try {
       const { data } = await getIncidentsAPI(currentPage, pageSize, statusFilter, dateFilter, searchTerm);
       // Calculate how many pages are available based on the new total
@@ -46,17 +37,21 @@ const AppointmentsPage = () => {
         setIncidents(data.incidents);
         setTotalCount(data.totalCount);
         setCompletedCount(data.completedCount);
-        setTodayCount(data.todayCount);
         setOverdueCount(data.overdueCount);
-
-        // Set Global Data
-        setTodayIncidentsCount(data.todayCount);
+        // Set AuthContext Data
+        setTodayIncidentsCount(data.todayIncidents.length);
+        setTodayIncidents(data.todayIncidents);
       }
     } catch (err) {
       console.error("Failed to fetch appointments", err);
       toast.error("Could not load appointments");
     }
   };
+
+  useEffect(() => {
+    const delay = setTimeout(() => fetchIncidents(), 400);
+    return () => clearTimeout(delay);
+  }, [currentPage, pageSize, statusFilter, dateFilter, searchTerm]);
 
   const handleAddIncident = () => {
     setSelectedIncident(undefined);
@@ -73,7 +68,7 @@ const AppointmentsPage = () => {
       try {
         await deleteIncidentAPI(incidentId);
         toast.success('Appointment deleted successfully');
-        loadIncidents(); // Refresh the list
+        fetchIncidents(); // Refresh the list
       } catch (err) {
         console.error('Failed to delete appointment:', err);
         toast.error('Could not delete appointment');
@@ -85,15 +80,15 @@ const AppointmentsPage = () => {
     try {
       if (selectedIncident) {
         await updateIncidentAPI(selectedIncident.id, incidentData);
-        toast.success("Incident updated successfully");
+        toast.success("Appointment updated successfully");
       } else {
         await createIncidentAPI(incidentData);
-        toast.success("Incident created successfully");
+        toast.success("Appointment created successfully");
       }
 
       // Close modal, reset state, or refresh list
       setIsModalOpen(false);
-      loadIncidents();
+      fetchIncidents();
     } catch (err) {
       console.error("Error saving incident:", err);
       toast.error("Failed to save incident");
@@ -104,37 +99,12 @@ const AppointmentsPage = () => {
     try {
       await updateIncidentStatusAPI(incidentId, { status: newStatus });
       toast.success('Appointment status updated');
-      loadIncidents();
+      fetchIncidents();
     } catch (err) {
       console.error('Failed to update status:', err);
       toast.error('Could not update status');
     }
   };
-  // const handleExportAppointments = () => {
-  //   const csvContent = [
-  //     ['Patient', 'Title', 'Date', 'Time', 'Status', 'Cost', 'Treatment'],
-  //     ...incidents.map(incident => {
-  //       const patient = getPatientById(incident.patientId);
-  //       return [
-  //         patient?.name || 'Unknown',
-  //         incident.title,
-  //         formatDate(incident.appointmentDate),
-  //         formatTime(incident.appointmentDate),
-  //         incident.status,
-  //         incident.cost || 0,
-  //         incident.treatment || ''
-  //       ];
-  //     })
-  //   ].map(row => row.join(',')).join('\n');
-
-  //   const blob = new Blob([csvContent], { type: 'text/csv' });
-  //   const url = window.URL.createObjectURL(blob);
-  //   const a = document.createElement('a');
-  //   a.href = url;
-  //   a.download = 'appointments_export.csv';
-  //   a.click();
-  //   window.URL.revokeObjectURL(url);
-  // };
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -155,19 +125,7 @@ const AppointmentsPage = () => {
       default: return <AlertCircle className="w-4 h-4" />;
     }
   };
-
-  // Calculate statistics
-  const todayAppointments = incidents.filter(apt => {
-    const today = new Date().toDateString();
-    return new Date(apt.appointmentDate).toDateString() === today;
-  }).length;
-
-  const overdueAppointments = incidents.filter(apt => {
-    const now = new Date();
-    return new Date(apt.appointmentDate) < now && apt.status === 'Scheduled';
-  }).length;
-
-
+  
   return (
     <Layout>
       <div className="px-4 sm:px-6 lg:px-8">
@@ -178,15 +136,6 @@ const AppointmentsPage = () => {
               <p className="text-gray-600 dark:text-gray-300 mt-1 text-sm sm:text-base">Manage patient appointments and treatments</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-2">
-              {/* <button
-                onClick={handleExportAppointments}
-                className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 
-                dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white 
-                dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 transform hover:scale-105"
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Export CSV
-              </button> */}
               <button
                 onClick={handleAddIncident}
                 className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium 
@@ -208,7 +157,7 @@ const AppointmentsPage = () => {
             <div className="text-sm text-gray-600 dark:text-gray-300">Total Appointments</div>
           </div>
           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="text-2xl font-bold text-green-600 dark:text-green-400">{todayCount}</div>
+            <div className="text-2xl font-bold text-green-600 dark:text-green-400">{todayIncidents.length}</div>
             <div className="text-sm text-gray-600 dark:text-gray-300">Today's Appointments</div>
           </div>
           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
@@ -498,7 +447,7 @@ const AppointmentsPage = () => {
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           onSave={handleSaveIncident}
-          patients={patients}
+          patients={dropdownPatients}
           appointment={selectedIncident}
         />
       </div>
