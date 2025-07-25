@@ -15,6 +15,7 @@ export const useData = () => {
 
 export const DataProvider = ({ children }) => {
   const [dropdownPatients, setDropdownPatients] = useState([]);
+  const [upcomingIncidents, setUpcomingIncidents] = useState([]);
   const [todayIncidents, setTodayIncidents] = useState([]);
   const [incidents, setIncidents] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -46,6 +47,7 @@ export const DataProvider = ({ children }) => {
       setCompletedCount(data.completedCount);
       setOverdueCount(data.overdueCount);
       setTodayIncidents(data.todayIncidents);
+      setUpcomingIncidents(data.upcomingIncidents);
     } catch (error) {
       console.error('Failed to fetch incidents globally:', error);
     }
@@ -55,6 +57,7 @@ export const DataProvider = ({ children }) => {
     incidents,
     setIncidents,
     todayIncidents,
+    upcomingIncidents,
     setTodayIncidents,
     totalCount,  // incidents
     setTotalCount,  // incidents

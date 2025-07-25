@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Plus, Edit2, Trash2, Filter, Download, FileText, Phone, Mail } from 'lucide-react';
 import toast from "react-hot-toast";
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import Layout from '../components/Layout/Layout';
 import PatientModal from '../components/Patients/PatientModal';
@@ -14,12 +15,15 @@ import {
   fetchPatientsAPI,
   deletePatientAPI,
 } from '../api/patients';
-
 import { fetchPatientIncidentsAPI } from "../api/appointments";
-
 import PaginationFooter from '../components/Layout/PaginationFooter';
 
 const PatientsPage = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const showModal = queryParams.get('openModal') === '1';
+
   const { user } = useAuth();
   const { setDropdownPatients } = useData();
   const [patients, setPatients] = useState([]);
@@ -28,7 +32,7 @@ const PatientsPage = () => {
   const [adultCount, setAdultCount] = useState(0);
   const [seniorCount, setSeniorCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(showModal || false);
   const [selectedPatient, setSelectedPatient] = useState(undefined);
   const [incidentSummaries, setIncidentSummaries] = useState({});
 
@@ -88,6 +92,10 @@ const PatientsPage = () => {
 
     return () => clearTimeout(delayDebounce);
   }, [searchTerm, currentPage, pageSize, sortField, sortOrder, user?.role, user?.id]);
+
+  useEffect(() => {
+    if (showModal) setIsModalOpen(true);
+  }, [showModal])
 
   const fetchPatients = async () => {
     try {
@@ -483,10 +491,20 @@ const PatientsPage = () => {
           onPageChange={(page) => setCurrentPage(page)}
         />
 
-        <PatientModal
+        {/* <PatientModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           onSave={handleSavePatient}
+          patient={selectedPatient}
+        /> */}
+
+        <PatientModal
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            navigate('/patients'); // Optional: clear ?openModal=1 from URL
+          }}
+          onSave={handleAddPatient}
           patient={selectedPatient}
         />
       </div>

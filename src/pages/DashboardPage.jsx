@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
 import Layout from '../components/Layout/Layout';
@@ -9,9 +10,10 @@ import { Calendar, Users, DollarSign, Activity, Bell, TrendingUp, Clock, AlertTr
 
 const DashboardPage = () => {
   const { user } = useAuth();
-  const { dropdownPatients, incidents, todayIncidents } = useData();
+  const { dropdownPatients, incidents, todayIncidents, upcomingIncidents } = useData();
   const [isLoaded, setIsLoaded] = useState(false);
   const [notifications, setNotifications] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Trigger staggered animations
@@ -50,7 +52,6 @@ const DashboardPage = () => {
     return () => clearTimeout(timer);
   }, [incidents]);
 
-  const upcomingAppointments = [];
   const completedAppointments = incidents.filter(i => i.status === 'Completed');
   const totalRevenue = completedAppointments.reduce((sum, incident) => sum + (incident.cost || 0), 0);
   const pendingAppointments = incidents.filter(i => i.status === 'Scheduled' || i.status === 'In Progress');
@@ -151,15 +152,22 @@ const DashboardPage = () => {
             Quick Actions
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <button className="flex flex-col items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105 hover:bg-blue-50 dark:hover:bg-blue-900/20">
+            <button className="flex flex-col items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+              onClick={() => {
+                navigate("/patients?openModal=1")
+              }}>
               <Users className="w-8 h-8 text-blue-600 dark:text-blue-400 mb-2" />
               <span className="text-sm font-medium text-gray-900 dark:text-white">Add Patient</span>
             </button>
-            <button className="flex flex-col items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105 hover:bg-green-50 dark:hover:bg-green-900/20">
+            <button className="flex flex-col items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105 hover:bg-green-50 dark:hover:bg-green-900/20" onClick={() => {
+              navigate("/calendar");
+            }}>
               <Calendar className="w-8 h-8 text-green-600 dark:text-green-400 mb-2" />
               <span className="text-sm font-medium text-gray-900 dark:text-white">Calendar</span>
             </button>
-            <button className="flex flex-col items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105 hover:bg-purple-50 dark:hover:bg-purple-900/20">
+            <button className="flex flex-col items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105 hover:bg-purple-50 dark:hover:bg-purple-900/20" onClick={() => {
+              navigate("/appointments");
+            }}>
               <Clock className="w-8 h-8 text-purple-600 dark:text-purple-400 mb-2" />
               <span className="text-sm font-medium text-gray-900 dark:text-white">Appointments</span>
             </button>
@@ -176,15 +184,15 @@ const DashboardPage = () => {
             <div className="relative overflow-hidden rounded-lg hover:shadow-xl transition-shadow duration-300">
               <AppointmentsList
                 appointments={todayIncidents}
-                title="Upcoming Appointments"
+                title="Today's Appointments"
               />
             </div>
           </div>
           <div className="transform transition-all duration-500 hover:scale-105 hover-lift animate-fade-in-right animation-delay-800">
             <div className="relative overflow-hidden rounded-lg hover:shadow-xl transition-shadow duration-300">
               <AppointmentsList
-                appointments={[]}
-                title="Recent Completed Appointments"
+                appointments={upcomingIncidents}
+                title="Upcoming Appointments"
               />
             </div>
           </div>
