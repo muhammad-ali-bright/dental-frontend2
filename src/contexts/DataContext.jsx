@@ -28,8 +28,8 @@ export const DataProvider = ({ children }) => {
   const [incidents, setIncidents] = useState([]);
 
   useEffect(() => {
-    setPatients(getPatients());
-    setIncidents(getIncidents());
+    // setPatients(getPatients());
+    // setIncidents(getIncidents());
     loadDropdownPatients();
   }, []);
 
@@ -78,6 +78,7 @@ export const DataProvider = ({ children }) => {
 
   const value = {
     dropdownPatients,
+    setDropdownPatients,
     incidents,
     addIncident,
     updateIncident,

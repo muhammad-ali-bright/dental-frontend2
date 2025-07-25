@@ -10,7 +10,7 @@ import PaginationFooter from "../components/Layout/PaginationFooter";
 
 
 const AppointmentsPage = () => {
-  const { patients, updateIncident } = useData();
+  const { patients } = useData();
   const [incidents, setIncidents] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');

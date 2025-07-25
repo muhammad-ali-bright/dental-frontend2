@@ -19,7 +19,7 @@ import PaginationFooter from '../components/Layout/PaginationFooter';
 
 const PatientsPage = () => {
   const { user } = useAuth();
-  const { getPatientIncidents } = useData();
+  const { getPatientIncidents, setDropdownPatients } = useData();
   const [patients, setPatients] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
   const [childrenCount, setChildrenCount] = useState(0);
@@ -90,7 +90,8 @@ const PatientsPage = () => {
     if (!confirm) return;
 
     try {
-      await deletePatientAPI(patientId);
+      const { data: dropDownPatients } = await deletePatientAPI(patientId);
+      setDropdownPatients(dropDownPatients);
       toast.success('Patient deleted successfully');
       await fetchPatients(); // Refresh list after deletion
     } catch (err) {
@@ -108,10 +109,12 @@ const PatientsPage = () => {
     try {
       const payload = normalizePatientPayload(patientData);
       if (selectedPatient) {
-        await updatePatientAPI(selectedPatient.id, payload);
+        const { data: dropDownPatients } = await updatePatientAPI(selectedPatient.id, payload);
+        setDropdownPatients(dropDownPatients);
         toast.success("Updated Successfully");
       } else {
-        await createPatientAPI(payload);
+        const { data: dropDownPatients } = await createPatientAPI(payload);
+        setDropdownPatients(dropDownPatients);
         toast.success("Created Successfully")
       }
       setIsModalOpen(false);
