@@ -1,10 +1,9 @@
 import React from 'react';
 import { Calendar, Clock, User } from 'lucide-react';
 import { formatDate, formatTime } from '../../utils/dateUtils';
-import { useData } from '../../contexts/DataContext';
+import { fetchPatientByIdAPI } from '../../api/patients';
 
 const AppointmentsList = ({ appointments, title }) => {
-  const { getPatientById } = useData();
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -29,7 +28,7 @@ const AppointmentsList = ({ appointments, title }) => {
           </div>
         ) : (
           appointments.map((appointment) => {
-            const patient = getPatientById(appointment.patientId);
+            const {data: patient} = fetchPatientByIdAPI(appointment.patientId);
             return (
               <div key={appointment.id} className="p-3 sm:p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">

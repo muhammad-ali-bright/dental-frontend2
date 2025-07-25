@@ -5,18 +5,19 @@ import Layout from '../components/Layout/Layout';
 import StatsCard from '../components/Dashboard/StatsCard';
 import AppointmentsList from '../components/Dashboard/AppointmentsList';
 import FloatingActionButton from '../components/Dashboard/FloatingActionButton';
+import { fetchPatientByIdAPI } from '../api/patients';
 import { Calendar, Clock, DollarSign, FileText, Heart, Shield, Award, TrendingUp } from 'lucide-react';
 
 const PatientDashboardPage = () => {
   const { user } = useAuth();
-  const { getPatientIncidents, getPatientById } = useData();
+  const { getPatientIncidents } = useData();
   const [isLoaded, setIsLoaded] = useState(false);
   const [healthTip, setHealthTip] = useState('');
 
   useEffect(() => {
     // Trigger staggered animations
     const timer = setTimeout(() => setIsLoaded(true), 200);
-    
+
     // Set random health tip
     const tips = [
       "Brush your teeth twice daily for optimal oral health!",
@@ -26,12 +27,12 @@ const PatientDashboardPage = () => {
       "Use fluoride toothpaste for stronger enamel."
     ];
     setHealthTip(tips[Math.floor(Math.random() * tips.length)]);
-    
+
     return () => clearTimeout(timer);
   }, []);
 
   const patientId = user?.patientId;
-  const patient = patientId ? getPatientById(patientId) : null;
+  const { data: patient } = patientId ? fetchPatientByIdAPI(patientId) : null;
   const patientIncidents = patientId ? getPatientIncidents(patientId) : [];
 
   const upcomingAppointments = patientIncidents.filter(
@@ -42,14 +43,14 @@ const PatientDashboardPage = () => {
   const totalFiles = patientIncidents.reduce((sum, incident) => sum + incident.files.length, 0);
 
   // Calculate health score based on appointment frequency
-  const lastVisit = completedAppointments.length > 0 
+  const lastVisit = completedAppointments.length > 0
     ? completedAppointments.sort((a, b) => new Date(b.appointmentDate).getTime() - new Date(a.appointmentDate).getTime())[0]
     : null;
-  
-  const daysSinceLastVisit = lastVisit 
+
+  const daysSinceLastVisit = lastVisit
     ? Math.floor((new Date().getTime() - new Date(lastVisit.appointmentDate).getTime()) / (1000 * 60 * 60 * 24))
     : 365;
-  
+
   const healthScore = Math.max(0, Math.min(100, 100 - (daysSinceLastVisit / 180) * 100));
 
   const statsData = [
@@ -91,7 +92,7 @@ const PatientDashboardPage = () => {
           <div className="relative">
             {/* Floating Background Element */}
             <div className="absolute -top-4 -left-4 w-20 h-20 bg-green-100 dark:bg-green-900 rounded-full opacity-20 animate-float animation-delay-500"></div>
-            
+
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white animate-fade-in-right animation-delay-200 relative z-10">
               Welcome, {patient?.name || user?.name}!
             </h1>
@@ -138,8 +139,8 @@ const PatientDashboardPage = () => {
                 <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{Math.round(healthScore)}%</div>
                 <div className="text-sm text-gray-600 dark:text-gray-300">Health Score</div>
                 <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mt-2">
-                  <div 
-                    className="bg-blue-600 h-2 rounded-full transition-all duration-1000" 
+                  <div
+                    className="bg-blue-600 h-2 rounded-full transition-all duration-1000"
                     style={{ width: `${healthScore}%` }}
                   ></div>
                 </div>

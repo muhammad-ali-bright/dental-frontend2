@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, Clock, User } from 'lucide-react';
 import { generateCalendarDays, formatTime } from '../../utils/dateUtils';
-import { useData } from '../../contexts/DataContext';
+import { fetchPatientByIdAPI } from '../../api/patients';
 
 const CalendarComponent = ({ incidents }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
   const [hoveredDate, setHoveredDate] = useState(null);
-  const { getPatientById } = useData();
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -153,7 +152,7 @@ const CalendarComponent = ({ incidents }) => {
                   <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm">No appointments scheduled</p>
                 ) : (
                   displayIncidents.map((incident, index) => {
-                    const patient = getPatientById(incident.patientId);
+                    const {data: patient} = fetchPatientByIdAPI(incident.patientId);
                     return (
                       <div
                         key={incident.id}

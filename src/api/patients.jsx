@@ -6,7 +6,6 @@ export const fetchPatientsAPI = (data) => {
         params: data,
     });
 };
-
 // api/patients.js
 export const fetchPatientDropdownAPI = () => {
     return API.get('/patients/dropdown'); // Make sure this matches your backend

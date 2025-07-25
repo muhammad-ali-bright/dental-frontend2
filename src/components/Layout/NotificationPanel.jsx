@@ -3,9 +3,10 @@ import { Bell, Calendar, AlertTriangle, Clock, X, CheckCircle } from 'lucide-rea
 import { useData } from '../../contexts/DataContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { formatDate, formatTime } from '../../utils/dateUtils';
+import { fetchPatientByIdAPI } from '../../api/patients';
 
 const NotificationPanel = () => {
-  const { incidents, patients, getPatientById } = useData();
+  const { incidents, patients } = useData();
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
@@ -25,7 +26,7 @@ const NotificationPanel = () => {
       // });
 
       // todayAppointments.forEach(apt => {
-      //   const patient = getPatientById(apt.patientId);
+      //   const patient = fetchPatientByIdAPI(apt.patientId);
       //   newNotifications.push({
       //     id: `today-${apt.id}`,
       //     type: 'info',
@@ -46,7 +47,7 @@ const NotificationPanel = () => {
       });
 
       tomorrowAppointments.slice(0, 2).forEach(apt => {
-        const patient = getPatientById(apt.patientId);
+        const {data: patient} = fetchPatientByIdAPI(apt.patientId);
         newNotifications.push({
           id: `tomorrow-${apt.id}`,
           type: 'info',
@@ -68,7 +69,7 @@ const NotificationPanel = () => {
         });
 
         overdue.slice(0, 3).forEach(apt => {
-          const patient = getPatientById(apt.patientId);
+        const {data: patient} = fetchPatientByIdAPI(apt.patientId);
           const daysOverdue = Math.floor((now - new Date(apt.appointmentDate)) / (1000 * 60 * 60 * 24));
           newNotifications.push({
             id: `overdue-${apt.id}`,
@@ -132,7 +133,7 @@ const NotificationPanel = () => {
     };
 
     setNotifications(generateNotifications());
-  }, [incidents, patients, user, getPatientById]);
+  }, [incidents, patients, user, fetchPatientByIdAPI]);
 
   const getNotificationColor = (type) => {
     switch (type) {
