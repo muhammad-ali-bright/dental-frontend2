@@ -25,9 +25,11 @@ const LoginForm = () => {
       const { success, result } = await login(email, password);
       if (success) {
         toast.success("Login Successfully");
-        setTimeout(() => {
+        const timer = setTimeout(() => {
           navigate('/dashboard');
         }, 1000);
+
+        return () => clearTimeout(timer);
       } else {
         setError(result);
       }

@@ -10,6 +10,8 @@ const ProtectedRoute = ({ children, requiredRole }) => {
     return <div className="text-center py-10">Loading...</div>;
   }
 
+  debugger;
+
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }

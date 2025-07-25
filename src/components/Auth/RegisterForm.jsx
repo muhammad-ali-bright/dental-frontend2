@@ -43,9 +43,11 @@ const RegisterForm = () => {
             const { success, result } = response.data;
             if (success) {
                 toast.success("Successfully Register");
-                setInterval(() => {
+                const timer = setTimeout(() => {
                     navigate('/login');
                 }, 1000);
+
+                return () => clearTimeout(timer);
             } else {
                 setError(result);
             }
