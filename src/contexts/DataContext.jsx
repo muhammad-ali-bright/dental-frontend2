@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { getPatients, savePatients, getIncidents, saveIncidents } from '../utils/storage';
-import {fetchPatientDropdownAPI} from "../api/patients";
+import { fetchPatientDropdownAPI } from "../api/patients";
 
 const DataContext = createContext(undefined);
 
@@ -14,6 +14,7 @@ export const useData = () => {
 
 export const DataProvider = ({ children }) => {
   const [dropdownPatients, setDropdownPatients] = useState([]);
+  const [todayIncidentsCount, setTodayIncidentsCount] = useState(0);
 
   const loadDropdownPatients = async () => {
     try {
@@ -77,6 +78,8 @@ export const DataProvider = ({ children }) => {
   };
 
   const value = {
+    todayIncidentsCount,
+    setTodayIncidentsCount,
     dropdownPatients,
     setDropdownPatients,
     incidents,

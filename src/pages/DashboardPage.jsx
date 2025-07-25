@@ -9,7 +9,7 @@ import { Calendar, Users, DollarSign, Activity, Bell, TrendingUp, Clock, AlertTr
 
 const DashboardPage = () => {
   const { user } = useAuth();
-  const { dropdownPatients, incidents, getUpcomingAppointments } = useData();
+  const { dropdownPatients, incidents, getUpcomingAppointments, todayIncidentsCount } = useData();
   const [isLoaded, setIsLoaded] = useState(false);
   const [notifications, setNotifications] = useState([]);
 
@@ -88,8 +88,8 @@ const DashboardPage = () => {
       delay: 100
     },
     {
-      title: 'Upcoming Appointments',
-      value: upcomingAppointments.length,
+      title: 'Today\'s Appointments',
+      value: todayIncidentsCount,
       icon: Calendar,
       color: 'bg-gradient-to-r from-green-500 to-green-600',
       trend: { value: '8%', isPositive: true },
@@ -157,11 +157,11 @@ const DashboardPage = () => {
             </button>
             <button className="flex flex-col items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105 hover:bg-green-50 dark:hover:bg-green-900/20">
               <Calendar className="w-8 h-8 text-green-600 dark:text-green-400 mb-2" />
-              <span className="text-sm font-medium text-gray-900 dark:text-white">Schedule</span>
+              <span className="text-sm font-medium text-gray-900 dark:text-white">Calendar</span>
             </button>
             <button className="flex flex-col items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105 hover:bg-purple-50 dark:hover:bg-purple-900/20">
               <Clock className="w-8 h-8 text-purple-600 dark:text-purple-400 mb-2" />
-              <span className="text-sm font-medium text-gray-900 dark:text-white">Check-in</span>
+              <span className="text-sm font-medium text-gray-900 dark:text-white">Appointments</span>
             </button>
             <button className="flex flex-col items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105 hover:bg-orange-50 dark:hover:bg-orange-900/20">
               <DollarSign className="w-8 h-8 text-orange-600 dark:text-orange-400 mb-2" />

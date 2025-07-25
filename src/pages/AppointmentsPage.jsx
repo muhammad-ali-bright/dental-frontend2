@@ -10,7 +10,7 @@ import PaginationFooter from "../components/Layout/PaginationFooter";
 
 
 const AppointmentsPage = () => {
-  const { patients } = useData();
+  const { patients, setTodayIncidentsCount } = useData();
   const [incidents, setIncidents] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -36,7 +36,6 @@ const AppointmentsPage = () => {
   const loadIncidents = async () => {
     try {
       const { data } = await getIncidentsAPI(currentPage, pageSize, statusFilter, dateFilter, searchTerm);
-      console.log(data);
       // Calculate how many pages are available based on the new total
       const newTotalPages = Math.max(1, Math.ceil(data.totalCount / pageSize));
 
@@ -49,6 +48,9 @@ const AppointmentsPage = () => {
         setCompletedCount(data.completedCount);
         setTodayCount(data.todayCount);
         setOverdueCount(data.overdueCount);
+
+        // Set Global Data
+        setTodayIncidentsCount(data.todayCount);
       }
     } catch (err) {
       console.error("Failed to fetch appointments", err);
