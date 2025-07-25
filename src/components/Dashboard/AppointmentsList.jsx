@@ -1,9 +1,26 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Calendar, Clock, User } from 'lucide-react';
 import { formatDate, formatTime } from '../../utils/dateUtils';
 import { fetchPatientByIdAPI } from '../../api/patients';
 
+
+
 const AppointmentsList = ({ appointments, title }) => {
+
+  const [patientMap, setPatientMap] = useState({});
+
+  useEffect(() => {
+    const fetchPatients = async () => {
+      const newMap = {};
+      for (const apt of appointments) {
+        const res = await fetchPatientByIdAPI(apt.patientId);
+        newMap[apt.id] = res.data;
+      }
+      setPatientMap(newMap);
+    };
+
+    if (appointments.length) fetchPatients();
+  }, [appointments])
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -28,7 +45,7 @@ const AppointmentsList = ({ appointments, title }) => {
           </div>
         ) : (
           appointments.map((appointment) => {
-            const {data: patient} = fetchPatientByIdAPI(appointment.patientId);
+            const patient = patientMap[appointment.id];
             return (
               <div key={appointment.id} className="p-3 sm:p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">

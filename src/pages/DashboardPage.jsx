@@ -9,7 +9,7 @@ import { Calendar, Users, DollarSign, Activity, Bell, TrendingUp, Clock, AlertTr
 
 const DashboardPage = () => {
   const { user } = useAuth();
-  const { dropdownPatients, incidents, todayIncidentsCount } = useData();
+  const { dropdownPatients, incidents, todayIncidents } = useData();
   const [isLoaded, setIsLoaded] = useState(false);
   const [notifications, setNotifications] = useState([]);
 
@@ -89,7 +89,7 @@ const DashboardPage = () => {
     },
     {
       title: 'Today\'s Appointments',
-      value: todayIncidentsCount,
+      value: todayIncidents.length,
       icon: Calendar,
       color: 'bg-gradient-to-r from-green-500 to-green-600',
       trend: { value: '8%', isPositive: true },
@@ -175,7 +175,7 @@ const DashboardPage = () => {
           <div className="transform transition-all duration-500 hover:scale-105 hover-lift animate-fade-in-left animation-delay-700">
             <div className="relative overflow-hidden rounded-lg hover:shadow-xl transition-shadow duration-300">
               <AppointmentsList
-                appointments={[]}
+                appointments={todayIncidents}
                 title="Upcoming Appointments"
               />
             </div>

@@ -10,7 +10,7 @@ import PaginationFooter from "../components/Layout/PaginationFooter";
 
 
 const AppointmentsPage = () => {
-  const { setTodayIncidentsCount, todayIncidents, setTodayIncidents, incidents, setIncidents, totalCount, setTotalCount, overdueCount, setOverdueCount, completedCount, setCompletedCount, dropdownPatients } = useData();
+  const { todayIncidents, incidents, totalCount, overdueCount, completedCount, dropdownPatients, fetchIncidents } = useData();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedIncident, setSelectedIncident] = useState(undefined);
@@ -24,34 +24,16 @@ const AppointmentsPage = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
 
-  const fetchIncidents = async () => {
-    try {
-      const { data } = await getIncidentsAPI(currentPage, pageSize, statusFilter, dateFilter, searchTerm);
-      // Calculate how many pages are available based on the new total
-      const newTotalPages = Math.max(1, Math.ceil(data.totalCount / pageSize));
-
-      // If the current page is now invalid (e.g. 2 > 1), move back to valid page
-      if (currentPage > newTotalPages) {
-        setCurrentPage(newTotalPages);
-      } else {
-        setIncidents(data.incidents);
-        setTotalCount(data.totalCount);
-        setCompletedCount(data.completedCount);
-        setOverdueCount(data.overdueCount);
-        // Set AuthContext Data
-        setTodayIncidentsCount(data.todayIncidents.length);
-        setTodayIncidents(data.todayIncidents);
-      }
-    } catch (err) {
-      console.error("Failed to fetch appointments", err);
-      toast.error("Could not load appointments");
-    }
-  };
-
   useEffect(() => {
-    const delay = setTimeout(() => fetchIncidents(), 400);
+    const delay = setTimeout(() => {
+      reloadAppointments();
+    }, 400);
     return () => clearTimeout(delay);
   }, [currentPage, pageSize, statusFilter, dateFilter, searchTerm]);
+
+  const reloadAppointments = () => {
+    fetchIncidents(currentPage, pageSize, statusFilter, dateFilter, searchTerm);
+  };
 
   const handleAddIncident = () => {
     setSelectedIncident(undefined);
@@ -68,7 +50,7 @@ const AppointmentsPage = () => {
       try {
         await deleteIncidentAPI(incidentId);
         toast.success('Appointment deleted successfully');
-        fetchIncidents(); // Refresh the list
+        reloadAppointments(); // Refresh the list
       } catch (err) {
         console.error('Failed to delete appointment:', err);
         toast.error('Could not delete appointment');
@@ -88,7 +70,7 @@ const AppointmentsPage = () => {
 
       // Close modal, reset state, or refresh list
       setIsModalOpen(false);
-      fetchIncidents();
+      reloadAppointments();
     } catch (err) {
       console.error("Error saving incident:", err);
       toast.error("Failed to save incident");
@@ -99,7 +81,7 @@ const AppointmentsPage = () => {
     try {
       await updateIncidentStatusAPI(incidentId, { status: newStatus });
       toast.success('Appointment status updated');
-      fetchIncidents();
+      reloadAppointments();
     } catch (err) {
       console.error('Failed to update status:', err);
       toast.error('Could not update status');
@@ -125,7 +107,7 @@ const AppointmentsPage = () => {
       default: return <AlertCircle className="w-4 h-4" />;
     }
   };
-  
+
   return (
     <Layout>
       <div className="px-4 sm:px-6 lg:px-8">

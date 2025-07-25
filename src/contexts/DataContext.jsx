@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { fetchPatientDropdownAPI } from "../api/patients";
 import { useAuth } from './AuthContext';
+import { getIncidentsAPI } from '../api/appointments';
 
 const DataContext = createContext(undefined);
 
@@ -14,14 +15,19 @@ export const useData = () => {
 
 export const DataProvider = ({ children }) => {
   const [dropdownPatients, setDropdownPatients] = useState([]);
-  const [todayIncidentsCount, setTodayIncidentsCount] = useState(0);
   const [todayIncidents, setTodayIncidents] = useState([]);
   const [incidents, setIncidents] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
-  const [todayCount, setTodayCount] = useState(0);
   const [completedCount, setCompletedCount] = useState(0);
   const [overdueCount, setOverdueCount] = useState(0);
   const { isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadDropdownPatients();
+      fetchIncidents();
+    }
+  }, [isAuthenticated]);
 
   const loadDropdownPatients = async () => {
     try {
@@ -32,21 +38,24 @@ export const DataProvider = ({ children }) => {
     }
   };
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      loadDropdownPatients();
+  const fetchIncidents = async (page = 1, size = 10, status = 'all', date = 'all', search = '') => {
+    try {
+      const { data } = await getIncidentsAPI(page, size, status, date, search);
+      setIncidents(data.incidents);
+      setTotalCount(data.totalCount);
+      setCompletedCount(data.completedCount);
+      setOverdueCount(data.overdueCount);
+      setTodayIncidents(data.todayIncidents);
+    } catch (error) {
+      console.error('Failed to fetch incidents globally:', error);
     }
-  }, [isAuthenticated]);
+  };
 
   const value = {
     incidents,
     setIncidents,
     todayIncidents,
     setTodayIncidents,
-    todayIncidentsCount,  // incidents
-    setTodayIncidentsCount, // incidents
-    todayCount,
-    setTodayCount,
     totalCount,  // incidents
     setTotalCount,  // incidents
     completedCount,  // incidents
@@ -55,6 +64,7 @@ export const DataProvider = ({ children }) => {
     setOverdueCount,  // incidents
     dropdownPatients,
     setDropdownPatients,
+    fetchIncidents
   };
 
   return (
