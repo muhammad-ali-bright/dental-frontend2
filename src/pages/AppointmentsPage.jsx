@@ -4,12 +4,13 @@ import toast from 'react-hot-toast';
 import Layout from '../components/Layout/Layout';
 import AppointmentModal from '../components/Appointments/AppointmentModal';
 import { useData } from '../contexts/DataContext';
+import { useAuth } from '../contexts/AuthContext';
 import { formatDate, formatTime } from '../utils/dateUtils';
 import { createIncidentAPI, updateIncidentAPI, getIncidentsAPI, deleteIncidentAPI, updateIncidentStatusAPI } from '../api/appointments';
 import PaginationFooter from "../components/Layout/PaginationFooter";
 
-
 const AppointmentsPage = () => {
+  const { user } = useAuth();
   const { todayIncidents, incidents, totalCount, overdueCount, completedCount, dropdownPatients, fetchIncidents } = useData();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -117,18 +118,20 @@ const AppointmentsPage = () => {
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Appointments</h1>
               <p className="text-gray-600 dark:text-gray-300 mt-1 text-sm sm:text-base">Manage patient appointments and treatments</p>
             </div>
-            <div className="flex flex-col sm:flex-row gap-2">
-              <button
-                onClick={handleAddIncident}
-                className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium 
+            {
+              user.role == "Student" && <div className="flex flex-col sm:flex-row gap-2">
+                <button
+                  onClick={handleAddIncident}
+                  className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium 
                 rounded-md text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 
                 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all 
                 duration-300 transform hover:scale-105 hover:shadow-lg animate-pulse-glow w-full sm:w-auto"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add Appointment
-              </button>
-            </div>
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Appointment
+                </button>
+              </div>
+            }
           </div>
         </div>
 
@@ -308,6 +311,9 @@ const AppointmentsPage = () => {
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead className="bg-gray-50 dark:bg-gray-700">
                 <tr>
+                  {user.role != "Student" && <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Student
+                  </th>}
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Patient & Treatment
                   </th>
@@ -320,12 +326,17 @@ const AppointmentsPage = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Cost
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Quick Actions
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Actions
-                  </th>
+                  {
+                    user.role == "Student" && <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Quick Actions
+                    </th>
+                  }
+                  {
+                    user.role == "Student" && <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  }
+
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -337,6 +348,14 @@ const AppointmentsPage = () => {
                       className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 animate-fade-in-up"
                       style={{ animationDelay: `${300 + index * 100}ms` }}
                     >
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="hover:bg-blue-50 dark:hover:bg-blue-900/20 p-2 rounded-md transition-all duration-300 hover:shadow-md">
+                          <div className="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">
+                            {incident.user?.name || 'Unknown User'}
+                          </div>
+                          <div className="text-sm text-gray-400 dark:text-gray-500 max-w-xs truncate">{incident.user?.email}</div>
+                        </div>
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="hover:bg-blue-50 dark:hover:bg-blue-900/20 p-2 rounded-md transition-all duration-300 hover:shadow-md">
                           <div className="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">
@@ -367,42 +386,46 @@ const AppointmentsPage = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                         {incident.cost ? `$${incident.cost.toFixed(2)}` : '-'}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex space-x-2">
-                          {incident.status === 'Scheduled' && (
+                      {
+                        user.role == "Student" && <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex space-x-2">
+                            {incident.status === 'Scheduled' && (
+                              <button
+                                onClick={() => handleQuickStatusUpdate(incident.id, 'In Progress')}
+                                className="px-2 py-1 text-xs bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 rounded hover:bg-yellow-200 dark:hover:bg-yellow-900/40 transition-colors"
+                              >
+                                Start
+                              </button>
+                            )}
+                            {incident.status === 'In Progress' && (
+                              <button
+                                onClick={() => handleQuickStatusUpdate(incident.id, 'Completed')}
+                                className="px-2 py-1 text-xs bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded hover:bg-green-200 dark:hover:bg-green-900/40 transition-colors"
+                              >
+                                Complete
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      }
+                      {
+                        user.role == "Student" && <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <div className="flex items-center justify-end space-x-2">
                             <button
-                              onClick={() => handleQuickStatusUpdate(incident.id, 'In Progress')}
-                              className="px-2 py-1 text-xs bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 rounded hover:bg-yellow-200 dark:hover:bg-yellow-900/40 transition-colors"
+                              onClick={() => handleEditIncident(incident)}
+                              className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 transition-all duration-300 transform hover:scale-110 p-1 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20"
                             >
-                              Start
+                              <Edit2 className="w-4 h-4" />
                             </button>
-                          )}
-                          {incident.status === 'In Progress' && (
                             <button
-                              onClick={() => handleQuickStatusUpdate(incident.id, 'Completed')}
-                              className="px-2 py-1 text-xs bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded hover:bg-green-200 dark:hover:bg-green-900/40 transition-colors"
+                              onClick={() => handleDeleteIncident(incident.id)}
+                              className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-all duration-300 transform hover:scale-110 p-1 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20"
                             >
-                              Complete
+                              <Trash2 className="w-4 h-4" />
                             </button>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex items-center justify-end space-x-2">
-                          <button
-                            onClick={() => handleEditIncident(incident)}
-                            className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 transition-all duration-300 transform hover:scale-110 p-1 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteIncident(incident.id)}
-                            className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-all duration-300 transform hover:scale-110 p-1 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
+                          </div>
+                        </td>
+                      }
                     </tr>
                   );
                 })}

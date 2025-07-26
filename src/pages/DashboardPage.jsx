@@ -207,7 +207,7 @@ const DashboardPage = () => {
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors duration-300">
-                <div className="text-2xl font-bold text-green-600 dark:text-green-400">{((completedAppointments.length / incidents.length) * 100).toFixed(1)}%</div>
+                <div className="text-2xl font-bold text-green-600 dark:text-green-400">{0}%</div>
                 <div className="text-sm text-gray-600 dark:text-gray-300">Completion Rate</div>
               </div>
               <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-300">
@@ -223,7 +223,7 @@ const DashboardPage = () => {
         </div>
 
         {/* Floating Action Button */}
-        <FloatingActionButton userRole={user?.role} />
+        {/* <FloatingActionButton userRole={user?.role} /> */}
       </div>
     </Layout>
   );

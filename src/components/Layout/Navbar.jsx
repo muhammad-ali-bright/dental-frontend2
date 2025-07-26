@@ -36,12 +36,13 @@ const Navbar = ({ isDark, onThemeToggle }) => {
     { path: '/calendar', label: 'Calendar', icon: BarChart3 },
   ];
 
-  const patientNavItems = [
-    { path: '/patient-dashboard', label: 'My Dashboard', icon: Home },
-    { path: '/my-appointments', label: 'My Appointments', icon: Calendar },
-  ];
+  // const patientNavItems = [
+  //   { path: '/patient-dashboard', label: 'My Dashboard', icon: Home },
+  //   { path: '/my-appointments', label: 'My Appointments', icon: Calendar },
+  // ];
 
-  const navItems = user?.role === 'Student' ? adminNavItems : patientNavItems;
+  // const navItems = user?.role === 'Student' ? adminNavItems : patientNavItems;
+  const navItems = adminNavItems;
 
   const handleNavClick = (path) => {
     navigate(path);
@@ -103,7 +104,7 @@ const Navbar = ({ isDark, onThemeToggle }) => {
           {/* Desktop Right Side */}
           <div className="hidden lg:flex items-center space-x-4">
             <ThemeToggle isDark={isDark} onToggle={onThemeToggle} />
-            <NotificationPanel />
+            {/* <NotificationPanel /> */}
             <div className="flex items-center">
               <User className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-400'} mr-2`} />
               <span className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'} hidden xl:block`}>
@@ -130,7 +131,7 @@ const Navbar = ({ isDark, onThemeToggle }) => {
           {/* Mobile menu button */}
           <div className="lg:hidden flex items-center space-x-2">
             <ThemeToggle isDark={isDark} onToggle={onThemeToggle} />
-            <NotificationPanel />
+            {/* <NotificationPanel /> */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className={`

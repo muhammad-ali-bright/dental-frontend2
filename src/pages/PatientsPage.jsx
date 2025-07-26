@@ -46,48 +46,48 @@ const PatientsPage = () => {
 
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
-      const fetchAllData = async () => {
-        if (!user) return;
+      // const fetchPatients = async () => {
+      //   if (!user) return;
 
-        try {
-          // 1. Fetch Patients
-          const { data } = await fetchPatientsAPI({
-            page: currentPage,
-            limit: pageSize,
-            search: searchTerm,
-            sort: sortField,
-            order: sortOrder,
-            role: "Student"
-          });
+      //   try {
+      //     // 1. Fetch Patients
+      //     const { data } = await fetchPatientsAPI({
+      //       page: currentPage,
+      //       limit: pageSize,
+      //       search: searchTerm,
+      //       sort: sortField,
+      //       order: sortOrder,
+      //       role: "Student"
+      //     });
 
-          const newTotalPages = Math.max(1, Math.ceil(data.totalCount / pageSize));
-          if (currentPage > newTotalPages) {
-            setCurrentPage(newTotalPages);
-          } else {
-            setPatients(data.patients);
-            setTotalCount(data.totalCount);
-          }
+      //     const newTotalPages = Math.max(1, Math.ceil(data.totalCount / pageSize));
+      //     if (currentPage > newTotalPages) {
+      //       setCurrentPage(newTotalPages);
+      //     } else {
+      //       setPatients(data.patients);
+      //       setTotalCount(data.totalCount);
+      //     }
 
-          // 2. Fetch Incident Summaries for Each Patient
-          const summaries = {};
-          for (const patient of data.patients) {
-            try {
-              const res = await fetchPatientIncidentsAPI(patient.id);
-              summaries[patient.id] = res.data;
-            } catch (err) {
-              console.error(`Failed to fetch incidents for ${patient.name}:`, err);
-            }
-          }
+      //     // 2. Fetch Incident Summaries for Each Patient
+      //     const summaries = {};
+      //     for (const patient of data.patients) {
+      //       try {
+      //         const res = await fetchPatientIncidentsAPI(patient.id);
+      //         summaries[patient.id] = res.data;
+      //       } catch (err) {
+      //         console.error(`Failed to fetch incidents for ${patient.name}:`, err);
+      //       }
+      //     }
 
-          setIncidentSummaries(summaries);
+      //     setIncidentSummaries(summaries);
 
-        } catch (err) {
-          console.error('Failed to fetch patients or incidents', err);
-          toast.error('Could not load patients or incident summaries');
-        }
-      };
+      //   } catch (err) {
+      //     console.error('Failed to fetch patients or incidents', err);
+      //     toast.error('Could not load patients or incident summaries');
+      //   }
+      // };
 
-      fetchAllData();
+      fetchPatients();
     }, 300); // debounce
 
     return () => clearTimeout(delayDebounce);
@@ -98,29 +98,47 @@ const PatientsPage = () => {
   }, [showModal])
 
   const fetchPatients = async () => {
+    if (!user) return;
+
     try {
+      // 1. Fetch Patients
       const { data } = await fetchPatientsAPI({
         page: currentPage,
         limit: pageSize,
         search: searchTerm,
         sort: sortField,
         order: sortOrder,
-        role: "Student"  // only send userId if Student
+        role: "Student"
       });
 
-      // Calculate how many pages are available based on the new total
       const newTotalPages = Math.max(1, Math.ceil(data.totalCount / pageSize));
-
-      // If the current page is now invalid (e.g. 2 > 1), move back to valid page
       if (currentPage > newTotalPages) {
         setCurrentPage(newTotalPages);
       } else {
         setPatients(data.patients);
         setTotalCount(data.totalCount);
       }
+
+      setChildrenCount(data.childrenCount);
+      setAdultCount(data.adultCount);
+      setSeniorCount(data.seniorCount);
+
+      // 2. Fetch Incident Summaries for Each Patient
+      const summaries = {};
+      for (const patient of data.patients) {
+        try {
+          const res = await fetchPatientIncidentsAPI(patient.id);
+          summaries[patient.id] = res.data;
+        } catch (err) {
+          console.error(`Failed to fetch incidents for ${patient.name}:`, err);
+        }
+      }
+
+      setIncidentSummaries(summaries);
+
     } catch (err) {
-      console.error('Failed to fetch patients', err);
-      toast.error('Could not load patients');
+      console.error('Failed to fetch patients or incidents', err);
+      toast.error('Could not load patients or incident summaries');
     }
   };
 
@@ -194,15 +212,17 @@ const PatientsPage = () => {
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Patients</h1>
               <p className="text-gray-600 dark:text-gray-300 mt-1 text-sm sm:text-base">Manage your patient database</p>
             </div>
-            <div className="flex flex-col sm:flex-row gap-2">
-              <button
-                onClick={handleAddPatient}
-                className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 transform hover:scale-105 hover:shadow-lg animate-pulse-glow w-full sm:w-auto"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add Patient
-              </button>
-            </div>
+            {
+              user.role == "Student" && <div className="flex flex-col sm:flex-row gap-2">
+                <button
+                  onClick={handleAddPatient}
+                  className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 transform hover:scale-105 hover:shadow-lg animate-pulse-glow w-full sm:w-auto"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Patient
+                </button>
+              </div>
+            }
           </div>
         </div>
 
@@ -371,6 +391,11 @@ const PatientsPage = () => {
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead className="bg-gray-50 dark:bg-gray-700">
                 <tr>
+                  {
+                    user.role != "Student" && <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Student
+                    </th>
+                  }
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Patient
                   </th>
@@ -389,9 +414,12 @@ const PatientsPage = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Quick Actions
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Actions
-                  </th>
+                  {
+                    user.role == "Student" && <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  }
+
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -408,6 +436,16 @@ const PatientsPage = () => {
                       className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 animate-fade-in-up"
                       style={{ animationDelay: `${300 + index * 100}ms` }}
                     >
+                      {
+                        user.role != "Student" && <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="hover:bg-blue-50 dark:hover:bg-blue-900/20 p-2 rounded-md transition-all duration-300 hover:shadow-md cursor-pointer">
+                            <div className="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">
+                              {patient.user.name}
+                            </div>
+                            <div className="text-sm text-gray-500 dark:text-gray-400">{patient.user.email}</div>
+                          </div>
+                        </td>
+                      }
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="hover:bg-blue-50 dark:hover:bg-blue-900/20 p-2 rounded-md transition-all duration-300 hover:shadow-md cursor-pointer">
                           <div className="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">
@@ -453,22 +491,24 @@ const PatientsPage = () => {
                           </button>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex items-center justify-end space-x-2">
-                          <button
-                            onClick={() => handleEditPatient(patient)}
-                            className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 transition-all duration-300 transform hover:scale-110 p-1 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDeletePatient(patient.id)}
-                            className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-all duration-300 transform hover:scale-110 p-1 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
+                      {
+                        user.role == "Student" && <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <div className="flex items-center justify-end space-x-2">
+                            <button
+                              onClick={() => handleEditPatient(patient)}
+                              className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 transition-all duration-300 transform hover:scale-110 p-1 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDeletePatient(patient.id)}
+                              className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-all duration-300 transform hover:scale-110 p-1 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      }
                     </tr>
                   );
                 })}
@@ -504,7 +544,7 @@ const PatientsPage = () => {
             setIsModalOpen(false);
             navigate('/patients'); // Optional: clear ?openModal=1 from URL
           }}
-          onSave={handleAddPatient}
+          onSave={handleSavePatient}
           patient={selectedPatient}
         />
       </div>

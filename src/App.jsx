@@ -14,15 +14,20 @@ import PatientAppointmentsPage from './pages/PatientAppointmentsPage';
 import RegisterPage from './pages/RegisterPage';
 
 const DashboardRedirect = () => {
-  const { user } = useAuth();
+  const { isAuthenticated } = useAuth();
 
-  if (user?.role === 'Student') {
-    return <DashboardPage />;
-  } else if (user?.role === 'Professor') {
-    return <PatientDashboardPage />;
+  // if (user?.role === 'Student') {
+  //   return <DashboardPage />;
+  // } else if (user?.role === 'Professor') {
+  //   return <PatientDashboardPage />;
+  // }
+
+  if (isAuthenticated) {
+    return <DashboardPage />
   }
-
-  return <Navigate to="/login" replace />;
+  else {
+    return <Navigate to="/login" replace />;
+  }
 };
 
 function App() {
@@ -58,7 +63,7 @@ function App() {
               <Route
                 path="/patients"
                 element={
-                  <ProtectedRoute requiredRole='Student'>
+                  <ProtectedRoute>
                     <PatientsPage />
                   </ProtectedRoute>
                 }
@@ -66,7 +71,7 @@ function App() {
               <Route
                 path="/appointments"
                 element={
-                  <ProtectedRoute requiredRole='Student'>
+                  <ProtectedRoute>
                     <AppointmentsPage />
                   </ProtectedRoute>
                 }
@@ -74,7 +79,7 @@ function App() {
               <Route
                 path="/calendar"
                 element={
-                  <ProtectedRoute requiredRole='Student'>
+                  <ProtectedRoute>
                     <CalendarPage />
                   </ProtectedRoute>
                 }
@@ -93,7 +98,7 @@ function App() {
                 path="/my-appointments"
                 element={
                   <ProtectedRoute requiredRole="Patient">
-                    <PatientAppointmentsPage />
+                    <PatientAppointmentsPage/>
                   </ProtectedRoute>
                 }
               />
