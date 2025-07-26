@@ -8,6 +8,43 @@ const CalendarComponent = ({ incidents }) => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [hoveredDate, setHoveredDate] = useState(null);
 
+  const navigateMonth = (direction) => {
+    const newDate = new Date(currentDate);
+    newDate.setMonth(currentDate.getMonth() + (direction === 'next' ? 1 : -1));
+    setCurrentDate(newDate);
+  };
+
+  const getIncidentsForDate = (day) => {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    const date = new Date(year, month, day);
+    return incidents.filter(incident => {
+      const incidentDate = new Date(incident.appointmentDate);
+      return incidentDate.toDateString() === date.toDateString();
+    });
+  };
+
+  const handleDateClick = (day) => {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    setSelectedDate(new Date(year, month, day));
+  };
+
+  const handleDateHover = (day = null) => {
+    if (day) {
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+      setHoveredDate(new Date(year, month, day));
+    } else {
+      setHoveredDate(null);
+    }
+  };
+
+  const selectedDateIncidents = selectedDate ? getIncidentsForDate(selectedDate.getDate()) : [];
+  const hoveredDateIncidents = hoveredDate ? getIncidentsForDate(hoveredDate.getDate()) : [];
+  const displayIncidents = hoveredDate ? hoveredDateIncidents : selectedDateIncidents;
+  const displayDate = hoveredDate || selectedDate;
+
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
   const days = generateCalendarDays(year, month);
@@ -19,42 +56,8 @@ const CalendarComponent = ({ incidents }) => {
 
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-  const navigateMonth = (direction) => {
-    const newDate = new Date(currentDate);
-    newDate.setMonth(month + (direction === 'next' ? 1 : -1));
-    setCurrentDate(newDate);
-  };
-
-  const getIncidentsForDate = (day) => {
-    const date = new Date(year, month, day);
-    return incidents.filter(incident => {
-      const incidentDate = new Date(incident.appointmentDate);
-      return incidentDate.toDateString() === date.toDateString();
-    });
-  };
-
-  const handleDateClick = (day) => {
-    const date = new Date(year, month, day);
-    setSelectedDate(date);
-  };
-
-  const handleDateHover = (day = null) => {
-    if (day) {
-      const date = new Date(year, month, day);
-      setHoveredDate(date);
-    } else {
-      setHoveredDate(null);
-    }
-  };
-
-  const selectedDateIncidents = selectedDate ? getIncidentsForDate(selectedDate.getDate()) : [];
-  const hoveredDateIncidents = hoveredDate ? getIncidentsForDate(hoveredDate.getDate()) : [];
-  const displayIncidents = hoveredDate ? hoveredDateIncidents : selectedDateIncidents;
-  const displayDate = hoveredDate || selectedDate;
-
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 
-    dark:border-gray-700 animate-fade-in-up">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 animate-fade-in-up">
       <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between">
           <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
@@ -63,15 +66,13 @@ const CalendarComponent = ({ incidents }) => {
           <div className="flex items-center space-x-2">
             <button
               onClick={() => navigateMonth('prev')}
-              className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-all 
-              duration-300 transform hover:scale-110"
+              className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 transform hover:scale-110"
             >
               <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
             </button>
             <button
               onClick={() => navigateMonth('next')}
-              className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 
-              transform hover:scale-110"
+              className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 transform hover:scale-110"
             >
               <ChevronRight className="w-5 h-5 text-gray-600 dark:text-gray-400" />
             </button>
@@ -98,19 +99,24 @@ const CalendarComponent = ({ incidents }) => {
                 return <div key={index} className="h-10 sm:h-12"></div>;
               }
 
-              const dayIncidents = getIncidentsForDate(day);
-              const isSelected = selectedDate?.getDate() === day;
-              const isHovered = hoveredDate?.getDate() === day;
+              const isSelected = selectedDate?.getDate() === day &&
+                selectedDate?.getMonth() === month &&
+                selectedDate?.getFullYear() === year;
+
+              const isHovered = hoveredDate?.getDate() === day &&
+                hoveredDate?.getMonth() === month &&
+                hoveredDate?.getFullYear() === year;
+
               const isToday = new Date().toDateString() === new Date(year, month, day).toDateString();
+              const dayIncidents = getIncidentsForDate(day);
 
               return (
                 <button
-                  key={day}
+                  key={index}
                   onClick={() => handleDateClick(day)}
                   onMouseEnter={() => handleDateHover(day)}
                   onMouseLeave={() => handleDateHover(null)}
-                  className={`relative h-10 sm:h-12 p-1 text-xs sm:text-sm rounded-md transition-all duration-300 
-                    transform hover:scale-105
+                  className={`relative h-10 sm:h-12 p-1 text-xs sm:text-sm rounded-md transition-all duration-300 transform hover:scale-105
                     ${isSelected ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 shadow-md' : ''}
                     ${isHovered && !isSelected ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400' : ''}
                     ${!isSelected && !isHovered ? 'hover:bg-gray-50 dark:hover:bg-gray-700' : ''}
@@ -119,9 +125,8 @@ const CalendarComponent = ({ incidents }) => {
                   <div className="text-center text-gray-900 dark:text-white">{day}</div>
                   {dayIncidents.length > 0 && (
                     <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2">
-                      <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-all duration-300 ${
-                        isSelected || isHovered ? 'bg-blue-600 dark:bg-blue-400 scale-125' : 'bg-blue-500'
-                      }`}></div>
+                      <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-all duration-300 ${isSelected || isHovered ? 'bg-blue-600 dark:bg-blue-400 scale-125' : 'bg-blue-500'
+                        }`}></div>
                     </div>
                   )}
                 </button>
@@ -152,7 +157,7 @@ const CalendarComponent = ({ incidents }) => {
                   <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm">No appointments scheduled</p>
                 ) : (
                   displayIncidents.map((incident, index) => {
-                    const {data: patient} = fetchPatientByIdAPI(incident.patientId);
+                    const { data: patient } = fetchPatientByIdAPI(incident.patientId);
                     return (
                       <div
                         key={incident.id}
@@ -163,8 +168,12 @@ const CalendarComponent = ({ incidents }) => {
                         <div className="flex items-start space-x-2">
                           <User className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 mt-0.5 flex-shrink-0" />
                           <div className="min-w-0 flex-1">
-                            <p className="font-medium text-xs sm:text-sm text-gray-900 dark:text-white truncate">{patient?.name}</p>
-                            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 truncate">{incident.title}</p>
+                            <p className="font-medium text-xs sm:text-sm text-gray-900 dark:text-white truncate">
+                              {patient?.name}
+                            </p>
+                            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 truncate">
+                              {incident.title}
+                            </p>
                             <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center mt-1">
                               <Clock className="w-3 h-3 mr-1 flex-shrink-0" />
                               {formatTime(incident.appointmentDate)}
