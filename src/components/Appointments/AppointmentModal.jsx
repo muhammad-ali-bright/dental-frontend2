@@ -72,13 +72,6 @@ const AppointmentModal = ({
     }));
   };
 
-  const removeFile = (fileId) => {
-    setFormData(prev => ({
-      ...prev,
-      files: prev.files.filter(f => f.id !== fileId)
-    }));
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
     onSave({
@@ -201,7 +194,7 @@ const AppointmentModal = ({
                 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               />
             </div>
-
+{/* 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Next Appointment Date
@@ -213,7 +206,7 @@ const AppointmentModal = ({
                 className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none 
                 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               />
-            </div>
+            </div> */}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

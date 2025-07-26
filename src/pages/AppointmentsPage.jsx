@@ -351,14 +351,6 @@ const AppointmentsPage = () => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="hover:bg-blue-50 dark:hover:bg-blue-900/20 p-2 rounded-md transition-all duration-300 hover:shadow-md">
                           <div className="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">
-                            {incident.user?.name || 'Unknown User'}
-                          </div>
-                          <div className="text-sm text-gray-400 dark:text-gray-500 max-w-xs truncate">{incident.user?.email}</div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="hover:bg-blue-50 dark:hover:bg-blue-900/20 p-2 rounded-md transition-all duration-300 hover:shadow-md">
-                          <div className="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">
                             {patient?.name || 'Unknown Patient'}
                           </div>
                           <div className="text-sm text-gray-500 dark:text-gray-400">{incident.title}</div>
@@ -367,6 +359,16 @@ const AppointmentsPage = () => {
                           )}
                         </div>
                       </td>
+                      {
+                        user?.role != "Student" && <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="hover:bg-blue-50 dark:hover:bg-blue-900/20 p-2 rounded-md transition-all duration-300 hover:shadow-md">
+                            <div className="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">
+                              {incident.user?.name || 'Unknown User'}
+                            </div>
+                            <div className="text-sm text-gray-400 dark:text-gray-500 max-w-xs truncate">{incident.user?.email}</div>
+                          </div>
+                        </td>
+                      }
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center text-sm text-gray-900 dark:text-white">
                           <Calendar className="w-4 h-4 mr-1" />
