@@ -7,6 +7,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -17,6 +18,7 @@
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -28,6 +30,7 @@
     opacity: 0;
     transform: translateY(-30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -39,6 +42,7 @@
     opacity: 0;
     transform: translateX(-30px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -50,6 +54,7 @@
     opacity: 0;
     transform: translateX(30px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -61,6 +66,7 @@
     opacity: 0;
     transform: translateY(100px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -72,6 +78,7 @@
     opacity: 0;
     transform: translateY(-100px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -83,6 +90,7 @@
     opacity: 0;
     transform: translateX(100px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -94,6 +102,7 @@
     opacity: 0;
     transform: scale(0.8);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -105,13 +114,16 @@
     opacity: 0;
     transform: scale(0.3);
   }
+
   50% {
     opacity: 1;
     transform: scale(1.05);
   }
+
   70% {
     transform: scale(0.9);
   }
+
   100% {
     opacity: 1;
     transform: scale(1);
@@ -119,30 +131,47 @@
 }
 
 @keyframes shake {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateX(0);
   }
-  10%, 30%, 50%, 70%, 90% {
+
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
     transform: translateX(-5px);
   }
-  20%, 40%, 60%, 80% {
+
+  20%,
+  40%,
+  60%,
+  80% {
     transform: translateX(5px);
   }
 }
 
 @keyframes pulseGlow {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
   }
+
   50% {
     box-shadow: 0 0 20px rgba(59, 130, 246, 0.8), 0 0 30px rgba(59, 130, 246, 0.6);
   }
 }
 
 @keyframes float {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0px);
   }
+
   50% {
     transform: translateY(-10px);
   }
@@ -152,15 +181,19 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
 }
 
 @keyframes morphBackground {
-  0%, 100% {
+
+  0%,
+  100% {
     border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
   }
+
   50% {
     border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
   }
@@ -224,24 +257,70 @@
 }
 
 /* Delay Classes */
-.animation-delay-100 { animation-delay: 100ms; }
-.animation-delay-200 { animation-delay: 200ms; }
-.animation-delay-300 { animation-delay: 300ms; }
-.animation-delay-400 { animation-delay: 400ms; }
-.animation-delay-500 { animation-delay: 500ms; }
-.animation-delay-600 { animation-delay: 600ms; }
-.animation-delay-700 { animation-delay: 700ms; }
-.animation-delay-800 { animation-delay: 800ms; }
-.animation-delay-900 { animation-delay: 900ms; }
-.animation-delay-1000 { animation-delay: 1000ms; }
-.animation-delay-1500 { animation-delay: 1500ms; }
-.animation-delay-2000 { animation-delay: 2s; }
+.animation-delay-100 {
+  animation-delay: 100ms;
+}
+
+.animation-delay-200 {
+  animation-delay: 200ms;
+}
+
+.animation-delay-300 {
+  animation-delay: 300ms;
+}
+
+.animation-delay-400 {
+  animation-delay: 400ms;
+}
+
+.animation-delay-500 {
+  animation-delay: 500ms;
+}
+
+.animation-delay-600 {
+  animation-delay: 600ms;
+}
+
+.animation-delay-700 {
+  animation-delay: 700ms;
+}
+
+.animation-delay-800 {
+  animation-delay: 800ms;
+}
+
+.animation-delay-900 {
+  animation-delay: 900ms;
+}
+
+.animation-delay-1000 {
+  animation-delay: 1000ms;
+}
+
+.animation-delay-1500 {
+  animation-delay: 1500ms;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
 
 /* Duration Classes */
-.animation-duration-slow { animation-duration: 2s; }
-.animation-duration-slower { animation-duration: 3s; }
-.animation-duration-fast { animation-duration: 0.5s; }
-.animation-duration-20000 { animation-duration: 20s; }
+.animation-duration-slow {
+  animation-duration: 2s;
+}
+
+.animation-duration-slower {
+  animation-duration: 3s;
+}
+
+.animation-duration-fast {
+  animation-duration: 0.5s;
+}
+
+.animation-duration-20000 {
+  animation-duration: 20s;
+}
 
 /* Theme Transition Classes */
 .theme-transition {
@@ -315,9 +394,11 @@
   0% {
     background-position: 0% 50%;
   }
+
   50% {
     background-position: 100% 50%;
   }
+
   100% {
     background-position: 0% 50%;
   }
@@ -393,6 +474,7 @@ html.dark {
   0% {
     background-position: 200% 0;
   }
+
   100% {
     background-position: -200% 0;
   }
@@ -423,16 +505,45 @@ html.dark {
   animation: fadeInUp 0.6s ease-out forwards;
 }
 
-.stagger-item:nth-child(1) { animation-delay: 0.1s; }
-.stagger-item:nth-child(2) { animation-delay: 0.2s; }
-.stagger-item:nth-child(3) { animation-delay: 0.3s; }
-.stagger-item:nth-child(4) { animation-delay: 0.4s; }
-.stagger-item:nth-child(5) { animation-delay: 0.5s; }
-.stagger-item:nth-child(6) { animation-delay: 0.6s; }
-.stagger-item:nth-child(7) { animation-delay: 0.7s; }
-.stagger-item:nth-child(8) { animation-delay: 0.8s; }
-.stagger-item:nth-child(9) { animation-delay: 0.9s; }
-.stagger-item:nth-child(10) { animation-delay: 1.0s; }
+.stagger-item:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.stagger-item:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.stagger-item:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.stagger-item:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+.stagger-item:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+.stagger-item:nth-child(6) {
+  animation-delay: 0.6s;
+}
+
+.stagger-item:nth-child(7) {
+  animation-delay: 0.7s;
+}
+
+.stagger-item:nth-child(8) {
+  animation-delay: 0.8s;
+}
+
+.stagger-item:nth-child(9) {
+  animation-delay: 0.9s;
+}
+
+.stagger-item:nth-child(10) {
+  animation-delay: 1.0s;
+}
 
 /* Breathing animation for important elements */
 .breathe {
@@ -440,9 +551,12 @@ html.dark {
 }
 
 @keyframes breathe {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(1);
   }
+
   50% {
     transform: scale(1.05);
   }
@@ -460,15 +574,19 @@ html.dark {
   from {
     width: 0;
   }
+
   to {
     width: 100%;
   }
 }
 
 @keyframes blink-caret {
-  from, to {
+
+  from,
+  to {
     border-color: transparent;
   }
+
   50% {
     border-color: currentColor;
   }
@@ -484,6 +602,7 @@ html.dark {
     transform: scale(0) rotate(0deg);
     opacity: 0;
   }
+
   to {
     transform: scale(1) rotate(0deg);
     opacity: 1;
@@ -499,6 +618,7 @@ html.dark {
     transform: scale(1) rotate(0deg);
     opacity: 1;
   }
+
   to {
     transform: scale(0) rotate(180deg);
     opacity: 0;
@@ -515,6 +635,7 @@ html.dark {
     transform: translateY(-10px) scale(0.95);
     opacity: 0;
   }
+
   to {
     transform: translateY(0) scale(1);
     opacity: 1;
@@ -584,4 +705,13 @@ html.dark {
 
 .subtle-glow:hover::after {
   opacity: 1;
+}
+
+/* Style FullCalendar buttons with Tailwind */
+.fc .fc-button {
+  @apply bg-blue-600 text-white rounded px-2 py-1 text-xs hover:bg-blue-700;
+}
+
+.fc .fc-toolbar-title {
+  @apply text-lg font-semibold text-gray-800 dark:text-white;
 }
