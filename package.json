@@ -14,6 +14,7 @@
     "@fullcalendar/react": "^6.1.18",
     "@fullcalendar/timegrid": "^6.1.18",
     "axios": "^1.11.0",
+    "date-fns": "^4.1.0",
     "eslint-config-react-app": "^7.0.1",
     "firebase": "^12.0.0",
     "icss-utils": "^5.1.0",
