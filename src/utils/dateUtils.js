@@ -63,3 +63,22 @@ export const generateCalendarDays = (year, month) => {
 
   return days;
 };
+export const getStartAndEndOfMonth = (date) => {
+  const start = new Date(date.getFullYear(), date.getMonth(), 1);
+  const end = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59);
+  return { start, end };
+};
+
+export const getStartAndEndOfWeek = (date) => {
+  const start = new Date(date);
+  const end = new Date(date);
+  const day = date.getDay(); // 0 (Sun) to 6 (Sat)
+
+  start.setDate(date.getDate() - day);
+  start.setHours(0, 0, 0, 0);
+
+  end.setDate(start.getDate() + 6);
+  end.setHours(23, 59, 59, 999);
+
+  return { start, end };
+};

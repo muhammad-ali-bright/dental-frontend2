@@ -25,11 +25,19 @@ export const getIncidentsAPI = (currentPage, pageSize, status, dateFilter, searc
     });
 };
 
+export const getIncidentsByRangeAPI = (startDate, endDate) => {
+    return API.get('/incidents/range', {
+        params: {
+            startDate,
+            endDate
+        }
+    });
+};
+
 export const fetchPatientIncidentsAPI = (patientId) => {
     return API.get(`/incidents/patient/${patientId}`);
-}
+};
 
 export const deleteIncidentAPI = (id) => {
-    alert(id);
     return API.delete(`/incidents/${id}`);
 };

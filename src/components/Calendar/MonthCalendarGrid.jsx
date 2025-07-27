@@ -4,6 +4,11 @@ const MonthCalendarGrid = ({ year, month, days, incidents }) => {
         return incidents.filter(i => new Date(i.appointmentDate).toDateString() === date.toDateString());
     };
 
+    const formatTime = (dateStr) => {
+        const date = new Date(dateStr);
+        return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true }).toLowerCase();
+    };
+
     const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
     return (
@@ -23,14 +28,26 @@ const MonthCalendarGrid = ({ year, month, days, incidents }) => {
                     const incidentsForDay = getIncidentsForDate(day);
 
                     return (
-                        <div key={index} className="bg-gray-50 dark:bg-gray-700 rounded-md p-2 text-sm h-28 overflow-hidden">
-                            <div className="font-medium text-gray-800 dark:text-white">{day}</div>
-                            <div className="text-xs mt-1 space-y-1">
-                                {incidentsForDay.slice(0, 2).map((i, idx) => (
-                                    <div key={idx} className="text-gray-600 dark:text-gray-300 truncate">• {i.title}</div>
+                        <div
+                            key={index}
+                            className="border border-gray-200 dark:border-gray-700 h-28 p-1 text-sm flex flex-col"
+                        >
+                            {/* Date number, centered */}
+                            <div className="text-center text-xs text-gray-500 dark:text-gray-400 font-medium mb-1">
+                                {day}
+                            </div>
+
+                            {/* Events */}
+                            <div className="space-y-[2px] text-[11px] text-gray-700 dark:text-gray-200 overflow-hidden px-4">
+                                {incidentsForDay.slice(0, 3).map((i, idx) => (
+                                    <div key={idx} className="flex items-center gap-1 truncate">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block" />
+                                        <span className="truncate">{formatTime(i.appointmentDate)} {i.patient.name}</span>
+                                    </div>
                                 ))}
-                                {incidentsForDay.length > 2 && (
-                                    <div className="text-blue-500 text-[10px] mt-1">+{incidentsForDay.length - 2} more</div>
+
+                                {incidentsForDay.length > 3 && (
+                                    <div className="text-blue-600 text-[10px] mt-1">+{incidentsForDay.length - 3} more</div>
                                 )}
                             </div>
                         </div>
