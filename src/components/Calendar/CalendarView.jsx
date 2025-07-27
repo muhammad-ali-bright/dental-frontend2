@@ -1,8 +1,7 @@
-// components/Calendar/CalendarView.tsx
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import MonthCalendarGrid from './MonthCalendarGrid';
-import WeekCalendarGrid from './WeekCalendarGrid';
+import WeekCalendarGridSchedule from './WeekCalendarGrid';
 import { generateCalendarDays } from '../../utils/dateUtils';
 
 const CalendarView = ({ incidents }) => {
@@ -25,7 +24,6 @@ const CalendarView = ({ incidents }) => {
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 animate-fade-in-up">
-      {/* Header */}
       <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
         <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
           {currentDate.toLocaleString('default', { month: 'long' })} {year}
@@ -42,13 +40,11 @@ const CalendarView = ({ incidents }) => {
           </button>
         </div>
       </div>
-
-      {/* Calendar Content */}
-      <div className="p-4 sm:p-6">
+      <div className="p-0 sm:p-4">
         {view === 'month' ? (
           <MonthCalendarGrid year={year} month={month} days={days} incidents={incidents} />
         ) : (
-          <WeekCalendarGrid currentDate={currentDate} incidents={incidents} />
+          <WeekCalendarGridSchedule currentDate={currentDate} incidents={incidents} />
         )}
       </div>
     </div>
