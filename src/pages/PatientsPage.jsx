@@ -40,53 +40,12 @@ const PatientsPage = () => {
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortField, setSortField] = useState('name'); // or 'createdAt'
-  const [sortOrder, setSortOrder] = useState('desc');
+  const [sortOrder, setSortOrder] = useState('asc');
 
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
-      // const fetchPatients = async () => {
-      //   if (!user) return;
-
-      //   try {
-      //     // 1. Fetch Patients
-      //     const { data } = await fetchPatientsAPI({
-      //       page: currentPage,
-      //       limit: pageSize,
-      //       search: searchTerm,
-      //       sort: sortField,
-      //       order: sortOrder,
-      //       role: "Student"
-      //     });
-
-      //     const newTotalPages = Math.max(1, Math.ceil(data.totalCount / pageSize));
-      //     if (currentPage > newTotalPages) {
-      //       setCurrentPage(newTotalPages);
-      //     } else {
-      //       setPatients(data.patients);
-      //       setTotalCount(data.totalCount);
-      //     }
-
-      //     // 2. Fetch Incident Summaries for Each Patient
-      //     const summaries = {};
-      //     for (const patient of data.patients) {
-      //       try {
-      //         const res = await fetchPatientIncidentsAPI(patient.id);
-      //         summaries[patient.id] = res.data;
-      //       } catch (err) {
-      //         console.error(`Failed to fetch incidents for ${patient.name}:`, err);
-      //       }
-      //     }
-
-      //     setIncidentSummaries(summaries);
-
-      //   } catch (err) {
-      //     console.error('Failed to fetch patients or incidents', err);
-      //     toast.error('Could not load patients or incident summaries');
-      //   }
-      // };
-
       fetchPatients();
     }, 300); // debounce
 
@@ -108,7 +67,6 @@ const PatientsPage = () => {
         search: searchTerm,
         sort: sortField,
         order: sortOrder,
-        role: "Student"
       });
 
       const newTotalPages = Math.max(1, Math.ceil(data.totalCount / pageSize));
@@ -176,7 +134,7 @@ const PatientsPage = () => {
 
   const normalizePatientPayload = (data) => ({
     ...data,
-    dob: new Date(data.dob).toISOString(),
+    dob: data.dob.split('T')[0], // 'YYYY-MM-DD' only
   });
 
   const handleSavePatient = async (patientData) => {
@@ -424,7 +382,6 @@ const PatientsPage = () => {
                       Actions
                     </th>
                   }
-
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -535,13 +492,6 @@ const PatientsPage = () => {
           totalCount={totalCount}
           onPageChange={(page) => setCurrentPage(page)}
         />
-
-        {/* <PatientModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onSave={handleSavePatient}
-          patient={selectedPatient}
-        /> */}
 
         <PatientModal
           isOpen={isModalOpen}
