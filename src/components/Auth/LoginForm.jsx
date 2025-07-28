@@ -52,8 +52,8 @@ const LoginForm = () => {
       toast.success("Logged in with Google!");
       navigate("/dashboard");
     } else if (success && !exists) {
-      toast("Complete your profile");
-      navigate("/complete-registration");
+      toast("Please register to continue");
+      navigate("/register");
     } else {
       toast.error(result || "Google sign-in failed");
     }
