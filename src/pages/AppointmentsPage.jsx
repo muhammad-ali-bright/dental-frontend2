@@ -6,7 +6,7 @@ import AppointmentModal from '../components/Appointments/AppointmentModal';
 import { useData } from '../contexts/DataContext';
 import { useAuth } from '../contexts/AuthContext';
 import { formatDate, formatTime } from '../utils/dateUtils';
-import { createIncidentAPI, updateIncidentAPI, getIncidentsAPI, deleteIncidentAPI, updateIncidentStatusAPI } from '../api/appointments';
+import { createIncidentAPI, updateIncidentAPI, deleteIncidentAPI, updateIncidentStatusAPI } from '../api/appointments';
 import PaginationFooter from "../components/Layout/PaginationFooter";
 
 const AppointmentsPage = () => {
@@ -51,7 +51,14 @@ const AppointmentsPage = () => {
       try {
         await deleteIncidentAPI(incidentId);
         toast.success('Appointment deleted successfully');
-        reloadAppointments(); // Refresh the list
+
+        // Go to previous page if this was the last item
+        if (incidents.length === 1 && currentPage > 1) {
+          setCurrentPage(prev => prev - 1);
+        } else {
+          reloadAppointments();
+        }
+
       } catch (err) {
         console.error('Failed to delete appointment:', err);
         toast.error('Could not delete appointment');

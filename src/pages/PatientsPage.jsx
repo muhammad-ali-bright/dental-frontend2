@@ -162,7 +162,12 @@ const PatientsPage = () => {
       const { data: dropDownPatients } = await deletePatientAPI(patientId);
       setDropdownPatients(dropDownPatients);
       toast.success('Patient deleted successfully');
-      await fetchPatients(); // Refresh list after deletion
+
+      if (patients.length === 1 && currentPage > 1) {
+        setCurrentPage(prev => prev - 1); // this will trigger fetchPatients from useEffect
+      } else {
+        await fetchPatients(); // refresh list if not the last item
+      }
     } catch (err) {
       console.error('Failed to delete patient:', err);
       toast.error('Error deleting patient');

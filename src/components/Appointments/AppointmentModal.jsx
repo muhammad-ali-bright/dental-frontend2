@@ -57,7 +57,6 @@ const AppointmentModal = ({ isOpen, onClose, onSave, patients, appointment, sele
         hour12: true,
       });
 
-      // Find next time slot (30 mins later)
       const timeStrs = generateTimeOptions();
       const index = timeStrs.indexOf(startTimeStr);
       const endTimeStr = timeStrs[index + 1] || '';
@@ -90,7 +89,8 @@ const AppointmentModal = ({ isOpen, onClose, onSave, patients, appointment, sele
         files: [],
       });
     }
-  }, [isOpen]);
+  }, [isOpen, selectedSlot, appointment]);
+
 
   const buildISO = (dateStr, timeStr) => {
     const [time, modifier] = timeStr.split(' ');
@@ -107,10 +107,17 @@ const AppointmentModal = ({ isOpen, onClose, onSave, patients, appointment, sele
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    // onSave({
+    //   ...formData,
+    //   appointmentDate: buildISO(formData.date, formData.startTime),
+    //   endTime: buildISO(formData.date, formData.endTime),
+    //   cost: formData.cost ? parseFloat(formData.cost) : undefined,
+    // });
     onSave({
       ...formData,
-      appointmentDate: buildISO(formData.date, formData.startTime),
-      endTime: buildISO(formData.date, formData.endTime),
+      date: formData.date,                // "2025-08-01"
+      startTime: formData.startTime,      // "02:00 PM"
+      endTime: formData.endTime,          // "02:30 PM"
       cost: formData.cost ? parseFloat(formData.cost) : undefined,
     });
     onClose();
