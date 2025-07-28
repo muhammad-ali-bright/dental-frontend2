@@ -12,6 +12,7 @@ import CalendarPage from './pages/CalendarPage';
 import PatientDashboardPage from './pages/PatientDashboardPage';
 import PatientAppointmentsPage from './pages/PatientAppointmentsPage';
 import RegisterPage from './pages/RegisterPage';
+import CompleteGoogleRegistration from './components/Auth/CompleteGoogleRegistration';
 
 const DashboardRedirect = () => {
   const { isAuthenticated } = useAuth();
@@ -49,6 +50,7 @@ function App() {
             <Routes>
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
+              <Route path="/complete-registration" element={<CompleteGoogleRegistration />} />
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
               {/* Admin Routes */}

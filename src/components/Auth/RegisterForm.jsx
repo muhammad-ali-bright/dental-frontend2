@@ -7,6 +7,7 @@ import DoctorCharacter from './DoctorCharacter';
 import toast from 'react-hot-toast';
 
 const RegisterForm = () => {
+    const navigate = useNavigate();
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -16,8 +17,21 @@ const RegisterForm = () => {
     const [role, setRole] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const { register } = useAuth();
-    const navigate = useNavigate();
+    const { register, loginWithGoogle } = useAuth();
+
+    const handleGoogleSignup = async () => {
+        const { success, exists, result } = await loginWithGoogle();
+
+        if (success && exists) {
+            toast.success("You already have an account, redirected to dashboard.");
+            navigate("/login");
+        } else if (success && !exists) {
+            toast("Complete your profile to finish registration");
+            navigate("/complete-registration");
+        } else {
+            toast.error(result || "Google sign-up failed");
+        }
+    };
 
     const isPasswordValid = (pwd) => {
         return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/.test(pwd);
@@ -92,7 +106,9 @@ const RegisterForm = () => {
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                                 placeholder="Full name"
-                                className="appearance-none rounded-t-md relative block w-full px-3 py-3 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-300 hover:border-blue-400"
+                                className="appearance-none bg-white block w-full px-3 py-3 pl-10 pr-10 border border-gray-300 
+                                            rounded-md placeholder-gray-500 text-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 
+                                            focus-visible:border-blue-500 sm:text-sm transition duration-300 hover:border-blue-400"
                             />
                         </div>
 
@@ -111,7 +127,9 @@ const RegisterForm = () => {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="Email address"
-                                className="appearance-none relative block w-full px-3 py-3 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-300 hover:border-blue-400"
+                                className="appearance-none bg-white block w-full px-3 py-3 pl-10 pr-10 border border-gray-300 
+                                            rounded-md placeholder-gray-500 text-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 
+                                            focus-visible:border-blue-500 sm:text-sm transition duration-300 hover:border-blue-400"
                             />
                         </div>
 
@@ -130,7 +148,9 @@ const RegisterForm = () => {
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 placeholder="Password"
-                                className="appearance-none relative block w-full px-3 py-3 pl-10 pr-10 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-300 hover:border-blue-400"
+                                className="appearance-none bg-white block w-full px-3 py-3 pl-10 pr-10 border border-gray-300 
+                                            rounded-md placeholder-gray-500 text-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 
+                                            focus-visible:border-blue-500 sm:text-sm transition duration-300 hover:border-blue-400"
                             />
                             <button
                                 type="button"
@@ -155,7 +175,9 @@ const RegisterForm = () => {
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
                                 placeholder="Confirm Password"
-                                className="appearance-none rounded-b-md relative block w-full px-3 py-3 pl-10 pr-10 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-300 hover:border-blue-400"
+                                className="appearance-none bg-white block w-full px-3 py-3 pl-10 pr-10 border border-gray-300 
+                                            rounded-md placeholder-gray-500 text-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 
+                                            focus-visible:border-blue-500 sm:text-sm transition duration-300 hover:border-blue-400"
                             />
                             <button
                                 type="button"
@@ -175,7 +197,9 @@ const RegisterForm = () => {
                                 value={role}
                                 onChange={(e) => setRole(e.target.value)}
                                 required
-                                className="appearance-none rounded-none relative block w-full px-3 py-3 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-300 hover:border-blue-400"
+                                className="appearance-none bg-white block w-full px-3 py-3 pl-10 pr-10 border border-gray-300 
+                                            rounded-md placeholder-gray-500 text-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 
+                                            focus-visible:border-blue-500 sm:text-sm transition duration-300 hover:border-blue-400"
                             >
                                 <option value="">Select Role</option>
                                 <option value="Student">Student</option>
@@ -200,6 +224,21 @@ const RegisterForm = () => {
                             </div>
                         </div>
                     )}
+
+                    <div className="mt-4">
+                        <button
+                            type="button"
+                            onClick={handleGoogleSignup}
+                            className="w-full flex items-center justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
+                        >
+                            <img
+                                src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                                alt="Google icon"
+                                className="w-5 h-5 mr-2"
+                            />
+                            Sign up with Google
+                        </button>
+                    </div>
 
                     <div>
                         <button

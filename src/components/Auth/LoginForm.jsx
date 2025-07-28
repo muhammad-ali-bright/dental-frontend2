@@ -13,7 +13,7 @@ const LoginForm = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [isTypingPassword, setIsTypingPassword] = useState(false);
-  const { login } = useAuth();
+  const { login, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -43,6 +43,20 @@ const LoginForm = () => {
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
     setIsTypingPassword(e.target.value.length > 0);
+  };
+
+  const handleGoogleSignIn = async () => {
+    const { success, exists, result } = await loginWithGoogle();
+
+    if (success && exists) {
+      toast.success("Logged in with Google!");
+      navigate("/dashboard");
+    } else if (success && !exists) {
+      toast("Complete your profile");
+      navigate("/complete-registration");
+    } else {
+      toast.error(result || "Google sign-in failed");
+    }
   };
 
   return (
@@ -94,9 +108,9 @@ const LoginForm = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="appearance-none rounded-none relative block w-full px-3 py-3 pl-10 border 
-                  border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none 
-                  focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm transition-all 
-                  duration-300 hover:border-blue-400"
+                          border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md bg-white focus:outline-none 
+                          focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm transition-all 
+                          duration-300 hover:border-blue-400"
                   placeholder="Email address"
                 />
               </div>
@@ -115,7 +129,9 @@ const LoginForm = () => {
                 value={password}
                 onChange={handlePasswordChange}
                 placeholder="Password"
-                className="appearance-none relative block w-full px-3 py-3 pl-10 pr-10 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-300 hover:border-blue-400"
+                className="appearance-none relative block w-full px-3 py-3 pl-10 pr-10 border border-gray-300 
+                        placeholder-gray-500 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 
+                        focus:border-blue-500 sm:text-sm transition-all duration-300 hover:border-blue-400"
               />
               <button
                 type="button"
@@ -159,6 +175,16 @@ const LoginForm = () => {
               ) : (
                 'Sign in'
               )}
+            </button>
+          </div>
+          <div className="mt-4">
+            <button
+              type="button"
+              onClick={handleGoogleSignIn}
+              className="w-full flex items-center justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
+            >
+              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google icon" className="w-5 h-5 mr-2" />
+              Sign in with Google
             </button>
           </div>
           <div className="mt-4 text-center">

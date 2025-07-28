@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { signInWithPopup } from "firebase/auth";
+import { auth, googleProvider } from "../firebase/firebase";
 import { API } from '../api/axios';
 import { registerAPI, loginAPI, fetchMeAPI } from '../api/auth';
 
@@ -77,6 +79,33 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+
+  const loginWithGoogle = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const firebaseUser = result.user;
+      const idToken = await firebaseUser.getIdToken();
+
+      const response = await API.post('/auth/google-login', { idToken });
+      const { success, result: {token, user} } = response.data;
+
+      if (success && user) {
+        setUser(user);
+        setIsAuthenticated(true);
+        localStorage.setItem('token', token);
+        API.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        return { success: true, exists: true, result: user };
+      } else {
+        // user not in DB — redirect to profile completion
+        localStorage.setItem('google-id-token', idToken);
+        return { success: true, exists: false };
+      }
+    } catch (error) {
+      console.error("Google Sign-in error:", error);
+      return { success: false, result: error.message };
+    }
+  };
+
   const logout = async () => {
     try {
       // Optionally notify server
@@ -111,6 +140,7 @@ export const AuthProvider = ({ children }) => {
     user,
     loading,
     isAuthenticated,
+    loginWithGoogle,
     register,
     login,
     logout,
