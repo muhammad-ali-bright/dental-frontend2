@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useData } from '../../contexts/DataContext';
+import { useAuth } from '../../contexts/AuthContext';
 import AppointmentModal from '../Appointments/AppointmentModal';
 import MonthCalendarGrid from './MonthCalendarGrid';
 import WeekCalendarGrid from './WeekCalendarGrid';
@@ -14,6 +15,7 @@ const CalendarView = () => {
     incidents,
     fetchIncidentsByRange
   } = useData();
+  const { user } = useAuth();
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState('month');
@@ -99,6 +101,31 @@ const CalendarView = () => {
     fetchCurrentRange();
   }, [currentDate, view]);
 
+  // Build student color map once in CalendarView
+  const studentColors = {};
+  const colorPalette = [
+    'bg-blue-600',
+    'bg-green-600',
+    'bg-yellow-600',
+    'bg-pink-600',
+    'bg-purple-600',
+    'bg-indigo-600',
+    'bg-red-600',
+    'bg-teal-600',
+  ];
+  let colorIndex = 0;
+
+  if (user?.role === 'Professor') {
+    incidents.forEach((i) => {
+      const sid = i.patient?.studentId;
+      if (sid && !studentColors[sid]) {
+        studentColors[sid] = colorPalette[colorIndex % colorPalette.length];
+        colorIndex++;
+      }
+    });
+  }
+
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 animate-fade-in-up">
       <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
@@ -126,13 +153,23 @@ const CalendarView = () => {
 
       <div className="p-0 sm:p-4">
         {view === 'month' ? (
-          <MonthCalendarGrid year={year} month={month} days={days} incidents={incidents} onEdit={handleEdit} />
+          <MonthCalendarGrid
+            year={year}
+            month={month}
+            days={days}
+            incidents={incidents}
+            onEdit={handleEdit}
+            role={user?.role}
+            studentColors={studentColors}
+          />
         ) : (
           <WeekCalendarGrid
             currentDate={currentDate}
             incidents={incidents}
+            role={user?.role}
             onAdd={handleAdd}
             onEdit={handleEdit}
+            studentColors={studentColors}
           />
         )}
 

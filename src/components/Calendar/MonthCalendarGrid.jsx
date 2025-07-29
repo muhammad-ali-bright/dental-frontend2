@@ -1,4 +1,5 @@
-const MonthCalendarGrid = ({ year, month, days, incidents, onEdit }) => {
+// MonthCalendarGrid.jsx
+const MonthCalendarGrid = ({ year, month, days, incidents, onEdit, role, studentColors }) => {
     const getIncidentsForDate = (day) => {
         const date = new Date(year, month, day);
         return incidents.filter(i => new Date(i.appointmentDate).toDateString() === date.toDateString());
@@ -13,14 +14,12 @@ const MonthCalendarGrid = ({ year, month, days, incidents, onEdit }) => {
 
     return (
         <div className="space-y-2">
-            {/* Day names row */}
             <div className="grid grid-cols-7 text-center text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300">
                 {dayNames.map((day, index) => (
                     <div key={index}>{day}</div>
                 ))}
             </div>
 
-            {/* Days grid */}
             <div className="grid grid-cols-7 gap-1">
                 {days.map((day, index) => {
                     if (day === null) return <div key={index} className="h-20 sm:h-24"></div>;
@@ -32,23 +31,29 @@ const MonthCalendarGrid = ({ year, month, days, incidents, onEdit }) => {
                             key={index}
                             className="border border-gray-200 dark:border-gray-700 h-28 p-1 text-sm flex flex-col"
                         >
-                            {/* Date number, centered */}
                             <div className="text-center text-xs text-gray-500 dark:text-gray-400 font-medium mb-1">
                                 {day}
                             </div>
 
-                            {/* Events */}
                             <div className="space-y-[2px] text-[11px] text-gray-700 dark:text-gray-200 overflow-hidden px-4">
-                                {incidentsForDay.slice(0, 3).map((i, idx) => (
-                                    <div
-                                        key={idx}
-                                        onClick={() => onEdit(i)}
-                                        className="flex items-center gap-1 truncate cursor-pointer px-1 py-[2px] rounded hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors"
-                                    >
-                                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block" />
-                                        <span className="truncate text-[11px]">&nbsp;&nbsp;{i.patient.name} - {formatTime(i.appointmentDate)}</span>
-                                    </div>
-                                ))}
+                                {incidentsForDay.slice(0, 3).map((i, idx) => {
+                                    const sid = i.patient?.studentId;
+                                    const colorClass =
+                                        role === 'Professor' ? studentColors[sid] || 'bg-gray-500' : 'bg-blue-500';
+
+                                    return (
+                                        <div
+                                            key={idx}
+                                            onClick={role === 'Student' ? () => onEdit(i) : undefined}
+                                            className={`flex items-center gap-1 truncate px-1 py-[2px] rounded text-[11px] ${role === 'Student'
+                                                ? 'hover:bg-blue-100 dark:hover:bg-blue-800 cursor-pointer transition-colors'
+                                                : ''}`}
+                                        >
+                                            <span className={`w-1.5 h-1.5 rounded-full inline-block ${colorClass}`} />
+                                            <span className="truncate text-[11px]">&nbsp;&nbsp;{i.patient.name} - {formatTime(i.appointmentDate)}</span>
+                                        </div>
+                                    );
+                                })}
 
                                 {incidentsForDay.length > 3 && (
                                     <div className="text-blue-600 text-[10px] mt-1">+{incidentsForDay.length - 3} more</div>
