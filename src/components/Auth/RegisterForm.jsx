@@ -23,7 +23,7 @@ const RegisterForm = () => {
         const { success, exists, result } = await loginWithGoogle();
 
         if (success && exists) {
-            toast.success("You already have an account, redirected to dashboard.");
+            toast.success("You already have an account.");
             navigate("/login");
         } else if (success && !exists) {
             toast("Complete your profile to finish registration");

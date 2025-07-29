@@ -94,12 +94,6 @@ const CalendarView = () => {
     fetchIncidentsByRange(start.toISOString(), end.toISOString());
   };
 
-  // Always fetch when component mounts
-  useEffect(() => {
-    fetchCurrentRange();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   // Re-fetch on currentDate or view change
   useEffect(() => {
     fetchCurrentRange();
@@ -132,7 +126,7 @@ const CalendarView = () => {
 
       <div className="p-0 sm:p-4">
         {view === 'month' ? (
-          <MonthCalendarGrid year={year} month={month} days={days} incidents={incidents} />
+          <MonthCalendarGrid year={year} month={month} days={days} incidents={incidents} onEdit={handleEdit} />
         ) : (
           <WeekCalendarGrid
             currentDate={currentDate}

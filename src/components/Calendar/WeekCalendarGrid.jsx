@@ -41,7 +41,7 @@ const WeekCalendarGridSchedule = ({ currentDate, incidents, onAdd, onEdit }) => 
                 <div className="p-2 border-r border-gray-300 dark:border-gray-700 text-center">Time</div>
                 {weekDays.map((day, idx) => (
                     <div key={idx} className="p-2 border-r border-gray-300 dark:border-gray-700 text-center">
-                        {format(day, 'EEE, MMM d')}
+                        {format(day, `d (EEE)`)}
                     </div>
                 ))}
             </div>
@@ -87,17 +87,13 @@ const WeekCalendarGridSchedule = ({ currentDate, incidents, onAdd, onEdit }) => 
                                         return (
                                             <div
                                                 key={i}
-                                                className="absolute left-1 right-1 bg-blue-600 text-white text-xs p-1 rounded shadow overflow-hidden"
+                                                className="absolute left-1 right-1 bg-blue-600 text-white text-xs p-1 rounded shadow overflow-hidden flex items-center z-[1]"
                                                 style={{
                                                     top: `${(start.getMinutes() / 60) * slotHeight}px`,
                                                     height: `${height}px`,
                                                 }}
                                             >
-                                                <div className="truncate">patient: {appt.patient?.name || appt.patientId}</div>
-                                                <div className="truncate">title: {appt.title}</div>
-                                                <div className="truncate">
-                                                    time: {format(start, 'h:mm a')} - {format(end, 'h:mm a')}
-                                                </div>
+                                                &nbsp;&nbsp;&nbsp;{appt.patient?.name || appt.patientId} - {appt.title}
                                             </div>
                                         );
                                     })}

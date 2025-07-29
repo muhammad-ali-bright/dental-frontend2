@@ -1,4 +1,4 @@
-const MonthCalendarGrid = ({ year, month, days, incidents }) => {
+const MonthCalendarGrid = ({ year, month, days, incidents, onEdit }) => {
     const getIncidentsForDate = (day) => {
         const date = new Date(year, month, day);
         return incidents.filter(i => new Date(i.appointmentDate).toDateString() === date.toDateString());
@@ -40,9 +40,13 @@ const MonthCalendarGrid = ({ year, month, days, incidents }) => {
                             {/* Events */}
                             <div className="space-y-[2px] text-[11px] text-gray-700 dark:text-gray-200 overflow-hidden px-4">
                                 {incidentsForDay.slice(0, 3).map((i, idx) => (
-                                    <div key={idx} className="flex items-center gap-1 truncate">
+                                    <div
+                                        key={idx}
+                                        onClick={() => onEdit(i)}
+                                        className="flex items-center gap-1 truncate cursor-pointer px-1 py-[2px] rounded hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors"
+                                    >
                                         <span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block" />
-                                        <span className="truncate">{formatTime(i.appointmentDate)} {i.patient.name}</span>
+                                        <span className="truncate text-[11px]">&nbsp;&nbsp;{i.patient.name} - {formatTime(i.appointmentDate)}</span>
                                     </div>
                                 ))}
 
