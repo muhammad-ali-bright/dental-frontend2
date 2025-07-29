@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { X } from 'lucide-react';
-import { createFileAttachment } from '../../utils/fileUtils';
+import { toast } from 'react-hot-toast';
 import { generateTimeOptions } from '../../utils/generateTimeOptions';
 
 const AppointmentModal = ({ isOpen, onClose, onSave, patients, appointment, selectedSlot }) => {
+  const timeOptions = useMemo(() => generateTimeOptions(), []);
+
   const [formData, setFormData] = useState({
     patientId: '',
     title: '',
@@ -18,21 +20,15 @@ const AppointmentModal = ({ isOpen, onClose, onSave, patients, appointment, sele
     files: [],
   });
 
-  const timeOptions = useMemo(() => generateTimeOptions(), []);
-
   useEffect(() => {
     if (appointment) {
       const apptDate = new Date(appointment.appointmentDate);
       const startTimeStr = apptDate.toLocaleTimeString('en-US', {
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true,
+        hour: 'numeric', minute: '2-digit', hour12: true,
       });
       const endTimeStr = appointment.endTime
         ? new Date(appointment.endTime).toLocaleTimeString('en-US', {
-          hour: 'numeric',
-          minute: '2-digit',
-          hour12: true,
+          hour: 'numeric', minute: '2-digit', hour12: true,
         })
         : '';
 
@@ -52,72 +48,54 @@ const AppointmentModal = ({ isOpen, onClose, onSave, patients, appointment, sele
     } else if (selectedSlot) {
       const slotDateStr = selectedSlot.toISOString().slice(0, 10);
       const startTimeStr = selectedSlot.toLocaleTimeString('en-US', {
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true,
+        hour: 'numeric', minute: '2-digit', hour12: true,
       });
 
-      const timeStrs = generateTimeOptions();
-      const index = timeStrs.indexOf(startTimeStr);
-      const endTimeStr = timeStrs[index + 1] || '';
+      const index = timeOptions.indexOf(startTimeStr);
+      const endTimeStr = timeOptions[index + 1] || '';
 
-      setFormData({
-        patientId: '',
-        title: '',
-        description: '',
-        comments: '',
+      setFormData(prev => ({
+        ...prev,
         date: slotDateStr,
         startTime: startTimeStr,
         endTime: endTimeStr,
-        cost: '',
-        treatment: '',
-        status: 'Scheduled',
-        files: [],
-      });
+      }));
     } else {
       setFormData({
-        patientId: '',
-        title: '',
-        description: '',
-        comments: '',
-        date: '',
-        startTime: '',
-        endTime: '',
-        cost: '',
-        treatment: '',
-        status: 'Scheduled',
-        files: [],
+        patientId: '', title: '', description: '', comments: '',
+        date: '', startTime: '', endTime: '', cost: '',
+        treatment: '', status: 'Scheduled', files: [],
       });
     }
-  }, [isOpen, selectedSlot, appointment]);
+  }, [isOpen, selectedSlot, appointment, timeOptions]);
 
-
-  const buildISO = (dateStr, timeStr) => {
-    const [time, modifier] = timeStr.split(' ');
-    let [hours, minutes] = time.split(':');
-    hours = parseInt(hours, 10);
-    if (modifier === 'PM' && hours !== 12) hours += 12;
-    if (modifier === 'AM' && hours === 12) hours = 0;
-
-    const date = new Date(dateStr);
-    date.setHours(hours);
-    date.setMinutes(parseInt(minutes));
-    return date.toISOString();
+  const validateForm = () => {
+    if (!formData.patientId || !formData.title || !formData.date || !formData.startTime || !formData.endTime) {
+      toast.error('Please fill out all required fields.');
+      return false;
+    }
+    const startIndex = timeOptions.indexOf(formData.startTime);
+    const endIndex = timeOptions.indexOf(formData.endTime);
+    if (endIndex <= startIndex) {
+      toast.error('End time must be after start time.');
+      return false;
+    }
+    if (formData.cost && parseFloat(formData.cost) < 0) {
+      toast.error('Cost must be greater than or equal to $0.');
+      return false;
+    }
+    return true;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // onSave({
-    //   ...formData,
-    //   appointmentDate: buildISO(formData.date, formData.startTime),
-    //   endTime: buildISO(formData.date, formData.endTime),
-    //   cost: formData.cost ? parseFloat(formData.cost) : undefined,
-    // });
+    if (!validateForm()) return;
+
     onSave({
       ...formData,
-      date: formData.date,                // "2025-08-01"
-      startTime: formData.startTime,      // "02:00 PM"
-      endTime: formData.endTime,          // "02:30 PM"
+      date: formData.date,
+      startTime: formData.startTime,
+      endTime: formData.endTime,
       cost: formData.cost ? parseFloat(formData.cost) : undefined,
     });
     onClose();
@@ -148,10 +126,8 @@ const AppointmentModal = ({ isOpen, onClose, onSave, patients, appointment, sele
                 className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-700"
               >
                 <option value="">Select Patient</option>
-                {patients.map((patient) => (
-                  <option key={patient.id} value={patient.id}>
-                    {patient.name}
-                  </option>
+                {patients.map((p) => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
                 ))}
               </select>
             </div>
@@ -212,16 +188,14 @@ const AppointmentModal = ({ isOpen, onClose, onSave, patients, appointment, sele
                 onChange={(e) => {
                   const startTime = e.target.value;
                   const startIndex = timeOptions.indexOf(startTime);
-                  const nextSlot = timeOptions[startIndex + 1] || ''; // 30 mins later
+                  const nextSlot = timeOptions[startIndex + 1] || '';
                   setFormData((prev) => ({ ...prev, startTime, endTime: nextSlot }));
                 }}
                 className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-700"
               >
                 <option value="">Start Time</option>
-                {timeOptions.map((time) => (
-                  <option key={time} value={time}>
-                    {time}
-                  </option>
+                {timeOptions.map((t) => (
+                  <option key={t} value={t}>{t}</option>
                 ))}
               </select>
 
@@ -232,13 +206,9 @@ const AppointmentModal = ({ isOpen, onClose, onSave, patients, appointment, sele
                 className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-700"
               >
                 <option value="">End Time</option>
-                {timeOptions
-                  .filter((_, i) => i > timeOptions.indexOf(formData.startTime))
-                  .map((time) => (
-                    <option key={time} value={time}>
-                      {time}
-                    </option>
-                  ))}
+                {timeOptions.filter((_, i) => i > timeOptions.indexOf(formData.startTime)).map((t) => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
               </select>
             </div>
           </div>
@@ -248,7 +218,7 @@ const AppointmentModal = ({ isOpen, onClose, onSave, patients, appointment, sele
             step="0.01"
             value={formData.cost}
             onChange={(e) => setFormData({ ...formData, cost: e.target.value })}
-            placeholder="Cost ($)"
+            placeholder="Cost (e.g., 100.00)"
             className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-700"
           />
 

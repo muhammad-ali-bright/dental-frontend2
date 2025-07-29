@@ -13,6 +13,7 @@ const INITIAL_FORM_STATE = {
 
 const PatientModal = ({ isOpen, onClose, onSave, patient }) => {
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
+  const [formErrors, setFormErrors] = useState({});
 
   useEffect(() => {
     if (isOpen) {
@@ -28,19 +29,52 @@ const PatientModal = ({ isOpen, onClose, onSave, patient }) => {
     }
   }, [isOpen, patient]);
 
+  const validateForm = () => {
+    const errors = {};
+
+    if (!formData.name.trim()) errors.name = 'Name is required';
+    if (!formData.dob) errors.dob = 'Date of birth is required';
+
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(formData.dob)) {
+      errors.dob = 'Date must be in YYYY-MM-DD format';
+    }
+
+    if (!formData.contact.trim()) errors.contact = 'Contact number is required';
+    if (!/^\+?\d{7,15}$/.test(formData.contact.trim())) {
+      errors.contact = 'Enter a valid phone number (7-15 digits)';
+
+    }
+
+    if (!formData.email.trim()) errors.email = 'Email is required';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+      errors.email = 'Invalid email format';
+    }
+
+    if (formData.emergencyContact && !/^\+?\d{7,15}$/.test(formData.emergencyContact.trim())) {
+      errors.emergencyContact = 'Invalid emergency contact number';
+    }
+
+    return errors;
+  };
+
   const handleChange = (field) => (e) => {
     setFormData({ ...formData, [field]: e.target.value });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const errors = validateForm();
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
     onSave(formData);
     onClose();
   };
 
   if (!isOpen) return null;
 
-  const renderInput = (label, field, type = 'text', required = false) => (
+  const renderInput = (label, field, type = 'text', required = false, placeholder = '') => (
     <div>
       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
         {label}{required && ' *'}
@@ -50,9 +84,14 @@ const PatientModal = ({ isOpen, onClose, onSave, patient }) => {
         value={formData[field]}
         onChange={handleChange(field)}
         required={required}
-        className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none 
-          focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+        placeholder={placeholder}
+        className={`w-full border rounded-md px-3 py-2 focus:outline-none 
+        focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+        ${formErrors[field] ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'}`}
       />
+      {formErrors[field] && (
+        <p className="mt-1 text-sm text-red-500">{formErrors[field]}</p>
+      )}
     </div>
   );
 
@@ -88,13 +127,13 @@ const PatientModal = ({ isOpen, onClose, onSave, patient }) => {
         </div>
 
         <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
-          {renderInput('Full Name', 'name', 'text', true)}
+          {renderInput('Full Name', 'name', 'text', true, 'e.g. John Doe')}
           {renderInput('Date of Birth', 'dob', 'date', true)}
-          {renderInput('Contact Number', 'contact', 'tel', true)}
-          {renderInput('Email Address', 'email', 'email', true)}
-          {renderTextarea('Address', 'address', 2)}
-          {renderInput('Emergency Contact', 'emergencyContact', 'tel')}
-          {renderTextarea('Health Information', 'healthInfo', 3, 'Allergies, medical conditions, medications, etc.')}
+          {renderInput('Contact Number', 'contact', 'tel', true, 'e.g. +1234567890')}
+          {renderInput('Email Address', 'email', 'email', true, 'e.g. john@example.com')}
+          {renderTextarea('Address', 'address', 2, 'Street, City, ZIP')}
+          {renderInput('Emergency Contact', 'emergencyContact', 'tel', false, 'e.g. +1987654321')}
+          {renderTextarea('Health Information', 'healthInfo', 3, 'Allergies, medical conditions, etc.')}
 
           <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 pt-4">
             <button

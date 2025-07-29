@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, Edit2, Trash2, Filter, Download, FileText, Phone, Mail } from 'lucide-react';
+import { Search, Plus, Edit2, Trash2, Phone, Mail } from 'lucide-react';
 import toast from "react-hot-toast";
 import { useLocation, useNavigate } from 'react-router-dom';
 
