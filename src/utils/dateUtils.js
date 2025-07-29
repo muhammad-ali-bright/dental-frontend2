@@ -47,25 +47,46 @@ export const getFirstDayOfMonth = (year, month) => {
 };
 
 export const generateCalendarDays = (year, month) => {
-  const daysInMonth = getDaysInMonth(year, month);
-  const firstDay = getFirstDayOfMonth(year, month);
+  const start = new Date(year, month, 1);
+  const end = new Date(year, month + 1, 0);
+  const startDay = start.getDay();
+  const endDay = end.getDay();
+
   const days = [];
 
-  // Previous month's trailing days
-  for (let i = 0; i < firstDay; i++) {
-    days.push(null);
+  // Fill in previous month's days
+  for (let i = startDay - 1; i >= 0; i--) {
+    const prevDate = new Date(year, month, 1 - i - 1);
+    days.push(prevDate);
   }
 
-  // Current month's days
-  for (let day = 1; day <= daysInMonth; day++) {
-    days.push(day);
+  // Fill in current month's days
+  for (let d = 1; d <= end.getDate(); d++) {
+    days.push(new Date(year, month, d));
+  }
+
+  // Fill in next month's days
+  for (let i = 1; days.length % 7 !== 0; i++) {
+    const nextDate = new Date(year, month + 1, i);
+    days.push(nextDate);
   }
 
   return days;
 };
 export const getStartAndEndOfMonth = (date) => {
   const start = new Date(date.getFullYear(), date.getMonth(), 1);
-  const end = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59);
+  const end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+
+  // Adjust start to the Sunday of that week
+  const startDay = start.getDay();
+  start.setDate(start.getDate() - startDay);
+  start.setHours(0, 0, 0, 0);
+
+  // Adjust end to the Saturday of that week
+  const endDay = end.getDay();
+  end.setDate(end.getDate() + (6 - endDay));
+  end.setHours(23, 59, 59, 999);
+
   return { start, end };
 };
 

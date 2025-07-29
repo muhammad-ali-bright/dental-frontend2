@@ -1,8 +1,9 @@
 // MonthCalendarGrid.jsx
 const MonthCalendarGrid = ({ year, month, days, incidents, onEdit, role, studentColors }) => {
-    const getIncidentsForDate = (day) => {
-        const date = new Date(year, month, day);
-        return incidents.filter(i => new Date(i.appointmentDate).toDateString() === date.toDateString());
+    const getIncidentsForDate = (dateObj) => {
+        return incidents.filter(i =>
+            new Date(i.appointmentDate).toDateString() === dateObj.toDateString()
+        );
     };
 
     const formatTime = (dateStr) => {
@@ -32,7 +33,7 @@ const MonthCalendarGrid = ({ year, month, days, incidents, onEdit, role, student
                             className="border border-gray-200 dark:border-gray-700 h-28 p-1 text-sm flex flex-col"
                         >
                             <div className="text-center text-xs text-gray-500 dark:text-gray-400 font-medium mb-1">
-                                {day}
+                                {day.getDate()}
                             </div>
 
                             <div className="space-y-[2px] text-[11px] text-gray-700 dark:text-gray-200 overflow-hidden px-4">
