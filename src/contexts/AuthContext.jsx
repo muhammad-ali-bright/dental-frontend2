@@ -85,7 +85,7 @@ export const AuthProvider = ({ children }) => {
       const result = await signInWithPopup(auth, googleProvider);
       const idToken = await result.user.getIdToken();
 
-      const { data } = await API.post('/auth/google-login', { idToken });
+      const { data } = await API.post('/auth/google/create-or-check', { idToken });
       const { success, alreadyExists, result: payload, message } = data;
 
       if (!success || !alreadyExists || !payload?.token || !payload?.user) {
@@ -109,7 +109,7 @@ export const AuthProvider = ({ children }) => {
       const result = await signInWithPopup(auth, googleProvider);
       const idToken = await result.user.getIdToken();
 
-      const { data } = await API.post('/auth/google-login', { idToken });
+      const { data } = await API.post('/auth/google/create-or-check', { idToken });
       const { success, alreadyExists, result: payload, message } = data;
 
       if (!success) {
