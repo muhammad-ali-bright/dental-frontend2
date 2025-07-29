@@ -1,30 +1,36 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 
+const INITIAL_FORM_STATE = {
+  name: '',
+  dob: '',
+  contact: '',
+  email: '',
+  healthInfo: '',
+  address: '',
+  emergencyContact: ''
+};
+
 const PatientModal = ({ isOpen, onClose, onSave, patient }) => {
-  const [formData, setFormData] = useState({
-    name: '',
-    dob: '',
-    contact: '',
-    email: '',
-    healthInfo: '',
-    address: '',
-    emergencyContact: ''
-  });
+  const [formData, setFormData] = useState(INITIAL_FORM_STATE);
 
   useEffect(() => {
     if (isOpen) {
       setFormData({
         name: patient?.name || '',
-        dob: patient?.dob ? patient.dob.slice(0, 10) : '', // ✅ Fix here
+        dob: patient?.dob?.slice(0, 10) || '',
         contact: patient?.contact || '',
         email: patient?.email || '',
         healthInfo: patient?.healthInfo || '',
         address: patient?.address || '',
-        emergencyContact: patient?.emergencyContact || '',
+        emergencyContact: patient?.emergencyContact || ''
       });
     }
-  }, [isOpen]);
+  }, [isOpen, patient]);
+
+  const handleChange = (field) => (e) => {
+    setFormData({ ...formData, [field]: e.target.value });
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -33,6 +39,38 @@ const PatientModal = ({ isOpen, onClose, onSave, patient }) => {
   };
 
   if (!isOpen) return null;
+
+  const renderInput = (label, field, type = 'text', required = false) => (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        {label}{required && ' *'}
+      </label>
+      <input
+        type={type}
+        value={formData[field]}
+        onChange={handleChange(field)}
+        required={required}
+        className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none 
+          focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+      />
+    </div>
+  );
+
+  const renderTextarea = (label, field, rows = 3, placeholder = '') => (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        {label}
+      </label>
+      <textarea
+        rows={rows}
+        placeholder={placeholder}
+        value={formData[field]}
+        onChange={handleChange(field)}
+        className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none 
+          focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+      />
+    </div>
+  );
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -50,101 +88,13 @@ const PatientModal = ({ isOpen, onClose, onSave, patient }) => {
         </div>
 
         <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Full Name *
-            </label>
-            <input
-              type="text"
-              required
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none 
-              focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Date of Birth *
-            </label>
-            <input
-              type="date"
-              required
-              value={formData.dob}
-              onChange={(e) => setFormData({ ...formData, dob: e.target.value })}
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none 
-              focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Contact Number *
-            </label>
-            <input
-              type="tel"
-              required
-              value={formData.contact}
-              onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none 
-              focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Email Address *
-            </label>
-            <input
-              type="email"
-              required
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none 
-              focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Address
-            </label>
-            <textarea
-              value={formData.address}
-              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-              rows={2}
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none 
-              focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Emergency Contact
-            </label>
-            <input
-              type="tel"
-              value={formData.emergencyContact}
-              onChange={(e) => setFormData({ ...formData, emergencyContact: e.target.value })}
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none 
-              focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Health Information
-            </label>
-            <textarea
-              value={formData.healthInfo}
-              onChange={(e) => setFormData({ ...formData, healthInfo: e.target.value })}
-              rows={3}
-              placeholder="Allergies, medical conditions, medications, etc."
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none 
-              focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-            />
-          </div>
+          {renderInput('Full Name', 'name', 'text', true)}
+          {renderInput('Date of Birth', 'dob', 'date', true)}
+          {renderInput('Contact Number', 'contact', 'tel', true)}
+          {renderInput('Email Address', 'email', 'email', true)}
+          {renderTextarea('Address', 'address', 2)}
+          {renderInput('Emergency Contact', 'emergencyContact', 'tel')}
+          {renderTextarea('Health Information', 'healthInfo', 3, 'Allergies, medical conditions, medications, etc.')}
 
           <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 pt-4">
             <button

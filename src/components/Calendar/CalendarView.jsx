@@ -139,7 +139,18 @@ const CalendarView = () => {
           <button onClick={() => setView('month')} className={`px-3 py-1.5 text-sm rounded-md ${view === 'month' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 dark:text-white'}`}>
             Month
           </button>
-          <button onClick={() => setView('week')} className={`px-3 py-1.5 text-sm rounded-md ${view === 'week' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 dark:text-white'}`}>
+          <button
+            onClick={() => {
+              // Get the first visible day of the current month view
+              const startOfMonthView = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+              const startOfWeek = new Date(startOfMonthView);
+              startOfWeek.setDate(startOfMonthView.getDate()); // Assuming week starts Sunday
+
+              setCurrentDate(startOfWeek);
+              setView('week');
+            }}
+            className={`px-3 py-1.5 text-sm rounded-md ${view === 'week' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 dark:text-white'}`}
+          >
             Week
           </button>
           <button onClick={() => navigateDate('prev')} className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
@@ -159,6 +170,7 @@ const CalendarView = () => {
             days={days}
             incidents={incidents}
             onEdit={handleEdit}
+            onAdd={handleAdd}
             role={user?.role}
             studentColors={studentColors}
           />

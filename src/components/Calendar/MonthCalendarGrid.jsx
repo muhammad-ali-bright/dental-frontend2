@@ -1,5 +1,5 @@
 // MonthCalendarGrid.jsx
-const MonthCalendarGrid = ({ year, month, days, incidents, onEdit, role, studentColors }) => {
+const MonthCalendarGrid = ({ days, incidents, onEdit, role, studentColors, onAdd }) => {
     const getIncidentsForDate = (dateObj) => {
         return incidents.filter(i =>
             new Date(i.appointmentDate).toDateString() === dateObj.toDateString()
@@ -30,7 +30,16 @@ const MonthCalendarGrid = ({ year, month, days, incidents, onEdit, role, student
                     return (
                         <div
                             key={index}
-                            className="border border-gray-200 dark:border-gray-700 h-28 p-1 text-sm flex flex-col"
+                            className="border border-gray-200 dark:border-gray-700 h-28 p-1 text-sm flex flex-col cursor-pointer"
+                            onClick={
+                                role === 'Student'
+                                    ? () => {
+                                        const clickedDate = new Date(day);
+                                        clickedDate.setHours(9, 0, 0, 0); // default to 9:00 AM
+                                        onAdd(clickedDate);
+                                    }
+                                    : undefined
+                            }
                         >
                             <div className="text-center text-xs text-gray-500 dark:text-gray-400 font-medium mb-1">
                                 {day.getDate()}

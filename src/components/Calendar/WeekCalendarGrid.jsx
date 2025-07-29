@@ -10,12 +10,14 @@ const WeekCalendarGridSchedule = ({ currentDate, incidents, role, onAdd, onEdit,
     const timeSlots = Array.from({ length: endHour - startHour }, (_, i) => addHours(startOfDay(new Date()), i));
 
     const startOfWeek = new Date(currentDate);
-    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+    const dayOfWeek = startOfWeek.getDay(); // 0 (Sun) to 6 (Sat)
+    startOfWeek.setDate(currentDate.getDate() - dayOfWeek);
 
+    // Now generate 7 days starting from startOfWeek
     const weekDays = Array.from({ length: 7 }, (_, i) => {
-        const day = new Date(startOfWeek);
-        day.setDate(startOfWeek.getDate() + i);
-        return day;
+        const date = new Date(startOfWeek);
+        date.setDate(startOfWeek.getDate() + i);
+        return new Date(date); // clone to avoid reference bugs
     });
 
     const getAppointmentsForSlot = (day, slot) => {

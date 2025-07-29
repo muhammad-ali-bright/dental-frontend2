@@ -1,14 +1,20 @@
+// src/contexts/AuthContext.js
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { signInWithPopup } from "firebase/auth";
-import { auth, googleProvider } from "../firebase/firebase";
+import { signInWithPopup } from 'firebase/auth';
+import { auth, googleProvider } from '../firebase/firebase';
 import { API } from '../api/axios';
 import { registerAPI, loginAPI, fetchMeAPI } from '../api/auth';
 
 const AuthContext = createContext(null);
 
+// Helpers
+const setAuthHeader = (token) => {
+  API.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+};
+
 const clearAuthState = () => {
-  delete API.defaults.headers.common['Authorization'];
   localStorage.removeItem('token');
+  delete API.defaults.headers.common['Authorization'];
 };
 
 export const AuthProvider = ({ children }) => {
@@ -16,138 +22,147 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // Auto-login on mount
   useEffect(() => {
     const initializeAuth = async () => {
       const token = localStorage.getItem('token');
       if (token) {
         try {
-          // Set token as default header for future requests
-          API.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
+          setAuthHeader(token);
           const response = await fetchMeAPI();
           const { success, result } = response.data;
           if (success) {
-            const user = result;
-            setUser(user);
+            setUser(result);
             setIsAuthenticated(true);
           } else {
-            // toast.error(result);
+            clearAuthState();
           }
         } catch (err) {
           console.error('Failed to fetch user from token:', err);
-          localStorage.removeItem('token');
-          setUser(null);
-          setIsAuthenticated(false);
+          clearAuthState();
         }
       }
-
       setLoading(false);
     };
 
     initializeAuth();
   }, []);
 
+  // Registration
   const register = async (name, email, password, role) => {
     try {
-      const response = await registerAPI({ name, email, password, role });
-      return response;
+      return await registerAPI({ name, email, password, role });
     } catch (err) {
-      console.error('Registration error:', err);
+      console.error('Registration failed:', err);
       return { success: false, message: 'Registration failed. Please try again.' };
     }
   };
 
+  // Email/Password Login
   const login = async (email, password) => {
     try {
       const response = await loginAPI(email, password);
       const { success, result } = response.data;
+
       if (success) {
         const { token, user } = result;
-
+        localStorage.setItem('token', token);
+        setAuthHeader(token);
         setUser(user);
         setIsAuthenticated(true);
-        localStorage.setItem('token', token);
-        API.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        return { success, result };
-      } else {
-        return { success, result }
       }
 
+      return { success, result };
     } catch (err) {
-      console.error('Login error:', err);
+      console.error('Login failed:', err);
       throw new Error('Invalid login credentials');
     }
   };
 
-
+  // Google Login
   const loginWithGoogle = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
-      const firebaseUser = result.user;
-      const idToken = await firebaseUser.getIdToken();
+      const idToken = await result.user.getIdToken();
 
-      const response = await API.post('/auth/google-login', { idToken });
-      const { success, result: {token, user} } = response.data;
+      const { data } = await API.post('/auth/google-login', { idToken });
+      const { success, alreadyExists, result: payload, message } = data;
 
-      if (success && user) {
-        setUser(user);
-        setIsAuthenticated(true);
-        localStorage.setItem('token', token);
-        API.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        return { success: true, exists: true, result: user };
-      } else {
-        // user not in DB — redirect to profile completion
-        localStorage.setItem('google-id-token', idToken);
-        return { success: true, exists: false };
+      if (!success || !alreadyExists || !payload?.token || !payload?.user) {
+        return { success: false, message: message || 'Account does not exist. Please register.' };
       }
-    } catch (error) {
-      console.error("Google Sign-in error:", error);
-      return { success: false, result: error.message };
+
+      const { token, user } = payload;
+      localStorage.setItem('token', token);
+      setAuthHeader(token);
+      setUser(user);
+      setIsAuthenticated(true);
+
+      return { success: true, user };
+    } catch (err) {
+      return { success: false, message: err.message };
     }
   };
 
-  const logout = async () => {
+  const registerWithGoogle = async () => {
     try {
-      // Optionally notify server
-      // await logoutAPI();
+      const result = await signInWithPopup(auth, googleProvider);
+      const idToken = await result.user.getIdToken();
 
-      // Clear token from localStorage
-      localStorage.removeItem('token');
+      const { data } = await API.post('/auth/google-login', { idToken });
+      const { success, alreadyExists, result: payload, message } = data;
 
-      // Remove auth header from Axios instance
-      delete API.defaults.headers.common['Authorization'];
+      if (!success) {
+        return { success: false, message: message || 'Google sign-up failed' };
+      }
 
-      // Update UI state
+      if (alreadyExists && payload?.user) {
+        // User already in DB — shouldn't be registering
+        return { success: true, alreadyExists: true };
+      }
+
+      // New Firebase user — proceed to profile completion
+      localStorage.setItem('google-id-token', idToken);
+      return { success: true, alreadyExists: false };
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  };
+
+  // Logout
+  const logout = () => {
+    try {
+      clearAuthState();
       setUser(null);
       setIsAuthenticated(false);
     } catch (err) {
-      console.error('Logout error:', err);
-    } finally {
-      // Always reset auth state
-      clearAuthState?.();
+      console.error('Logout failed:', err);
     }
   };
 
-
-  const refreshToken = async () => {
+  // Refresh token manually
+  const refreshToken = () => {
     const token = localStorage.getItem('token');
-    if (token) {
-      API.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    }
+    if (token) setAuthHeader(token);
   };
 
-  const value = {
-    user,
-    loading,
-    isAuthenticated,
-    loginWithGoogle,
-    register,
-    login,
-    logout,
-    refreshToken,
-  };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        isAuthenticated,
+        register,
+        login,
+        loginWithGoogle,
+        registerWithGoogle,
+        logout,
+        refreshToken,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => {

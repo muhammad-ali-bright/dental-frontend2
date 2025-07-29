@@ -1,43 +1,67 @@
-// api/incidents.js
 import { API } from './axios';
 
-export const createIncidentAPI = (data) => {
-    return API.post('/incidents', data);
-};
+/**
+ * Create a new incident
+ * @param {Object} data - Incident details
+ */
+export const createIncidentAPI = (data) => API.post('/incidents', data);
 
-export const updateIncidentAPI = (id, data) => {
-    return API.put(`/incidents/${id}`, data);
-};
+/**
+ * Update an existing incident
+ * @param {string} id - Incident ID
+ * @param {Object} data - Updated fields
+ */
+export const updateIncidentAPI = (id, data) => API.put(`/incidents/${id}`, data);
 
-export const updateIncidentStatusAPI = (id, payload) => {
-    return API.put(`/incidents/status/${id}`, payload);
-};
+/**
+ * Update the status of an incident
+ * @param {string} id - Incident ID
+ * @param {Object} payload - New status data
+ */
+export const updateIncidentStatusAPI = (id, payload) =>
+    API.put(`/incidents/status/${id}`, payload);
 
-export const getIncidentsAPI = (currentPage, pageSize, status, dateFilter, search) => {
-    return API.get('/incidents', {
+/**
+ * Get a paginated list of incidents with optional filters
+ * @param {number} currentPage
+ * @param {number} pageSize
+ * @param {string} status - e.g. 'all', 'completed'
+ * @param {string} dateFilter - e.g. 'today', 'week'
+ * @param {string} search - search keyword
+ */
+export const getIncidentsAPI = (currentPage, pageSize, status, dateFilter, search) =>
+    API.get('/incidents', {
         params: {
             page: currentPage,
             pageSize,
             status,
             date: dateFilter,
-            search
-        }
+            search,
+        },
     });
-};
 
-export const getIncidentsByRangeAPI = (startDate, endDate) => {
-    return API.get('/incidents/range', {
+/**
+ * Get incidents within a date range (for calendar)
+ * @param {string} startDate - Format: YYYY-MM-DD
+ * @param {string} endDate - Format: YYYY-MM-DD
+ */
+export const getIncidentsByRangeAPI = (startDate, endDate) =>
+    API.get('/incidents/range', {
         params: {
             startDate,
-            endDate
-        }
+            endDate,
+        },
     });
-};
 
-export const fetchPatientIncidentsAPI = (patientId) => {
-    return API.get(`/incidents/patient/${patientId}`);
-};
+/**
+ * Get all incidents for a specific patient
+ * @param {string} patientId
+ */
+export const fetchPatientIncidentsAPI = (patientId) =>
+    API.get(`/incidents/patient/${patientId}`);
 
-export const deleteIncidentAPI = (id) => {
-    return API.delete(`/incidents/${id}`);
-};
+/**
+ * Delete an incident
+ * @param {string} id - Incident ID
+ */
+export const deleteIncidentAPI = (id) => API.delete(`/incidents/${id}`);
