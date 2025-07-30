@@ -3,6 +3,50 @@ import React from 'react';
 import { format, addHours, startOfDay, differenceInMinutes } from 'date-fns';
 import { parseLocalDateTime } from '../../utils/dateUtils';
 
+function assignOverlapColumns(appointments) {
+    const sorted = [...appointments].sort((a, b) =>
+        new Date(a.appointmentDate) - new Date(b.appointmentDate)
+    );
+
+    const columns = [];
+
+    sorted.forEach((current) => {
+        const currentStart = new Date(current.appointmentDate);
+        const currentEnd = new Date(current.endTime || currentStart);
+
+        let placed = false;
+
+        for (let i = 0; i < columns.length; i++) {
+            const lastInColumn = columns[i][columns[i].length - 1];
+            const lastEnd = new Date(lastInColumn.endTime || lastInColumn.appointmentDate);
+
+            if (currentStart >= lastEnd) {
+                columns[i].push(current);
+                placed = true;
+                break;
+            }
+        }
+
+        if (!placed) {
+            columns.push([current]);
+        }
+    });
+
+    // Flatten with metadata
+    const result = [];
+    columns.forEach((col, colIdx) => {
+        col.forEach((appt) => {
+            result.push({
+                ...appt,
+                _columnIndex: colIdx,
+                _totalColumns: columns.length,
+            });
+        });
+    });
+
+    return result;
+}
+
 const WeekCalendarGridSchedule = ({ currentDate, incidents, role, onAdd, onEdit, studentColors }) => {
     const slotHeight = 64;
     const startHour = 0;
@@ -53,6 +97,7 @@ const WeekCalendarGridSchedule = ({ currentDate, incidents, role, onAdd, onEdit,
 
                         {weekDays.map((day, dayIdx) => {
                             const appointments = getAppointmentsForSlot(day, slot);
+                            const processedAppointments = assignOverlapColumns(appointments);
                             return (
                                 <div
                                     key={dayIdx}
@@ -70,7 +115,7 @@ const WeekCalendarGridSchedule = ({ currentDate, incidents, role, onAdd, onEdit,
                                             : undefined
                                     }
                                 >
-                                    {appointments.map((appt, i) => {
+                                    {processedAppointments.map((appt, i) => {
                                         const start = new Date(appt.appointmentDate);
                                         const end = new Date(appt.endTime || start);
                                         const duration = Math.max(15, differenceInMinutes(end, start));
@@ -79,17 +124,22 @@ const WeekCalendarGridSchedule = ({ currentDate, incidents, role, onAdd, onEdit,
                                         const sid = appt.patient?.studentId;
                                         const colorClass = role === 'Professor' ? studentColors[sid] || 'bg-gray-500' : 'bg-blue-600';
 
+                                        const width = 100 / appt._totalColumns;
+                                        const leftOffset = appt._columnIndex * width;
+
                                         return (
                                             <div
                                                 key={i}
                                                 onClick={(e) => {
-                                                    e.stopPropagation(); // ✅ prevent parent cell from interpreting click
+                                                    e.stopPropagation();
                                                     if (role == "Student") onEdit(appt);
                                                 }}
-                                                className={`absolute left-1 right-1 text-white text-xs p-1 rounded shadow overflow-hidden flex items-center z-[1] ${colorClass}`}
+                                                className={`absolute text-white text-xs p-1 rounded shadow overflow-hidden flex items-center z-[1] ${colorClass}`}
                                                 style={{
                                                     top: `${(start.getMinutes() / 60) * slotHeight}px`,
                                                     height: `${height}px`,
+                                                    width: `${width}%`,
+                                                    left: `${leftOffset}%`,
                                                 }}
                                             >
                                                 &nbsp;&nbsp;&nbsp;{appt.patient?.name || appt.patientId} - {appt.title}

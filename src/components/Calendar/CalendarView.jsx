@@ -170,7 +170,7 @@ const CalendarView = () => {
               const startOfWeek = new Date(startOfMonthView);
               startOfWeek.setDate(startOfMonthView.getDate()); // Assuming week starts Sunday
 
-              setCurrentDate(startOfWeek);
+              // setCurrentDate(startOfWeek);
               setView('week');
             }}
             className={`px-3 py-1.5 text-sm rounded-md ${view === 'week' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 dark:text-white'}`}
