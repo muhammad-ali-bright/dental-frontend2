@@ -1,6 +1,7 @@
 // WeekCalendarGridSchedule.jsx
 import React from 'react';
 import { format, addHours, startOfDay, differenceInMinutes } from 'date-fns';
+import { parseLocalDateTime } from '../../utils/dateUtils';
 
 const WeekCalendarGridSchedule = ({ currentDate, incidents, role, onAdd, onEdit, studentColors }) => {
     const slotHeight = 64;
@@ -59,17 +60,12 @@ const WeekCalendarGridSchedule = ({ currentDate, incidents, role, onAdd, onEdit,
                                     onClick={
                                         role === 'Student'
                                             ? () => {
-                                                const dateTime = new Date(day);
-                                                dateTime.setHours(slot.getHours());
-                                                dateTime.setMinutes(slot.getMinutes());
-                                                dateTime.setSeconds(0);
-                                                dateTime.setMilliseconds(0);
+                                                const dateStr = day.toISOString().split('T')[0]; // e.g. "2025-07-30"
+                                                const timeStr = format(slot, 'h:mm a');            // e.g. "9:00 AM"
 
-                                                if (appointments.length > 0) {
-                                                    onEdit(appointments[0]);
-                                                } else {
-                                                    onAdd(dateTime);
-                                                }
+                                                const dateTime = parseLocalDateTime(dateStr, timeStr); // ✅ safe local date
+
+                                                onAdd(dateTime); // ✅ clean Date object
                                             }
                                             : undefined
                                     }
@@ -86,6 +82,10 @@ const WeekCalendarGridSchedule = ({ currentDate, incidents, role, onAdd, onEdit,
                                         return (
                                             <div
                                                 key={i}
+                                                onClick={(e) => {
+                                                    e.stopPropagation(); // ✅ prevent parent cell from interpreting click
+                                                    onEdit(appt);
+                                                }}
                                                 className={`absolute left-1 right-1 text-white text-xs p-1 rounded shadow overflow-hidden flex items-center z-[1] ${colorClass}`}
                                                 style={{
                                                     top: `${(start.getMinutes() / 60) * slotHeight}px`,

@@ -46,6 +46,7 @@ const AppointmentModal = ({ isOpen, onClose, onSave, patients, appointment, sele
         files: appointment.files || [],
       });
     } else if (selectedSlot) {
+      
       const slotDateStr = selectedSlot.toISOString().slice(0, 10);
       const startTimeStr = selectedSlot.toLocaleTimeString('en-US', {
         hour: 'numeric', minute: '2-digit', hour12: true,
@@ -178,6 +179,7 @@ const AppointmentModal = ({ isOpen, onClose, onSave, patients, appointment, sele
               required
               value={formData.date}
               onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+              min={new Date().toISOString().split('T')[0]}
               className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-700"
             />
 

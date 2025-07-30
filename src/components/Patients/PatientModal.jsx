@@ -17,6 +17,7 @@ const PatientModal = ({ isOpen, onClose, onSave, patient }) => {
 
   useEffect(() => {
     if (isOpen) {
+      setFormErrors({});
       setFormData({
         name: patient?.name || '',
         dob: patient?.dob?.slice(0, 10) || '',

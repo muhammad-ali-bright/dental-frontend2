@@ -24,6 +24,7 @@ export const DataProvider = ({ children }) => {
 
   // 📊 Stats
   const [totalCount, setTotalCount] = useState(0);
+  const [filteredTotalCount, setFilteredTotalCount] = useState(0);
   const [completedCount, setCompletedCount] = useState(0);
   const [overdueCount, setOverdueCount] = useState(0);
 
@@ -45,6 +46,7 @@ export const DataProvider = ({ children }) => {
       setTodayIncidents(data?.todayIncidents || []);
       setUpcomingIncidents(data?.upcomingIncidents || []);
       setTotalCount(data?.totalCount || 0);
+      setFilteredTotalCount(data?.filteredTotalCount || 0);
       setCompletedCount(data?.completedCount || 0);
       setOverdueCount(data?.overdueCount || 0);
     } catch (err) {
@@ -86,12 +88,13 @@ export const DataProvider = ({ children }) => {
         setIncidents,
         fetchIncidents,
         fetchIncidentsByRange,
-
         // Stats
         todayIncidents,
         setTodayIncidents,
         upcomingIncidents,
         setUpcomingIncidents,
+        filteredTotalCount,
+        setFilteredTotalCount,
         totalCount,
         setTotalCount,
         completedCount,

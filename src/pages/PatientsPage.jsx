@@ -31,6 +31,7 @@ const PatientsPage = () => {
   const [childrenCount, setChildrenCount] = useState(0);
   const [adultCount, setAdultCount] = useState(0);
   const [seniorCount, setSeniorCount] = useState(0);
+  const [filteredTotalCount, setFilteredTotalCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(showModal || false);
   const [selectedPatient, setSelectedPatient] = useState(undefined);
@@ -42,7 +43,7 @@ const PatientsPage = () => {
   const [sortField, setSortField] = useState('name'); // or 'createdAt'
   const [sortOrder, setSortOrder] = useState('asc');
 
-  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+  const totalPages = Math.max(1, Math.ceil(filteredTotalCount / pageSize));
 
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
@@ -80,6 +81,7 @@ const PatientsPage = () => {
       setChildrenCount(data.childrenCount);
       setAdultCount(data.adultCount);
       setSeniorCount(data.seniorCount);
+      setFilteredTotalCount(data.filteredTotalCount);
 
       // 2. Fetch Incident Summaries for Each Patient
       const summaries = {};

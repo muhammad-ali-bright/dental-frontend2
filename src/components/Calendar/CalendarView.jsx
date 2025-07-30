@@ -7,6 +7,7 @@ import MonthCalendarGrid from './MonthCalendarGrid';
 import WeekCalendarGrid from './WeekCalendarGrid';
 import { generateCalendarDays, getStartAndEndOfMonth, getStartAndEndOfWeek } from '../../utils/dateUtils';
 import { updateIncidentAPI, createIncidentAPI } from '../../api/appointments';
+import { parseLocalDateTime } from '../../utils/dateUtils';
 import { toast } from 'react-hot-toast';
 
 const CalendarView = () => {
@@ -61,7 +62,30 @@ const CalendarView = () => {
 
   const handleSaveAppointment = async (incidentData) => {
     try {
-      if (selectedAppointment) {
+      const isEditing = !!selectedAppointment;
+      const newStart = parseLocalDateTime(incidentData.date, incidentData.startTime);
+      const newEnd = parseLocalDateTime(incidentData.date, incidentData.endTime);
+
+      // ✅ Filter only student’s own appointments
+      const studentAppointments = incidents.filter(i => i.patient?.studentId === user.id);
+
+      const hasOverlap = studentAppointments.some((appt) => {
+        const existingStart = new Date(appt.appointmentDate);
+        const existingEnd = new Date(appt.endTime || existingStart);
+
+        // Skip if editing the same appointment
+        if (isEditing && appt.id === selectedAppointment.id) return false;
+
+        return newStart < existingEnd && newEnd > existingStart;
+      });
+
+      if (user.role === 'Student' && hasOverlap) {
+        toast.error("You already have an appointment in this time range.");
+        return;
+      }
+
+      // Proceed to save
+      if (isEditing) {
         await updateIncidentAPI(selectedAppointment.id, incidentData);
         toast.success("Appointment updated successfully");
       } else {

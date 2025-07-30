@@ -199,7 +199,7 @@ const DashboardPage = () => {
         </div>
 
         {/* Performance Insights */}
-        <div className={`mt-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-700 transform hover:shadow-xl ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`} style={{ transitionDelay: '900ms' }}>
+        {/* <div className={`mt-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-700 transform hover:shadow-xl ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`} style={{ transitionDelay: '900ms' }}>
           <div className="p-6">
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
               <TrendingUp className="w-5 h-5 mr-2 text-green-600 dark:text-green-400" />
@@ -220,7 +220,7 @@ const DashboardPage = () => {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Floating Action Button */}
         {/* <FloatingActionButton userRole={user?.role} /> */}

@@ -11,7 +11,7 @@ import PaginationFooter from "../components/Layout/PaginationFooter";
 
 const AppointmentsPage = () => {
   const { user } = useAuth();
-  const { todayIncidents, incidents, totalCount, overdueCount, completedCount, dropdownPatients, fetchIncidents } = useData();
+  const { todayIncidents, incidents, totalCount, filteredTotalCount, overdueCount, completedCount, dropdownPatients, fetchIncidents } = useData();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedIncident, setSelectedIncident] = useState(undefined);
@@ -19,7 +19,7 @@ const AppointmentsPage = () => {
   // Pagination Settings
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+  const totalPages = Math.max(1, Math.ceil(filteredTotalCount / pageSize));
 
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');

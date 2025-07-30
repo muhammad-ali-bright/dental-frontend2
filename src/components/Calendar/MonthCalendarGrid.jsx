@@ -45,7 +45,7 @@ const MonthCalendarGrid = ({ days, incidents, onEdit, role, studentColors, onAdd
                                 {day.getDate()}
                             </div>
 
-                            <div className="space-y-[2px] text-[11px] text-gray-700 dark:text-gray-200 overflow-hidden px-4">
+                            <div className="flex flex-col justify-start min-h-[4.5rem] space-y-[2px] text-[11px] text-gray-700 dark:text-gray-200 px-4">
                                 {incidentsForDay.slice(0, 3).map((i, idx) => {
                                     const sid = i.patient?.studentId;
                                     const colorClass =
@@ -54,7 +54,10 @@ const MonthCalendarGrid = ({ days, incidents, onEdit, role, studentColors, onAdd
                                     return (
                                         <div
                                             key={idx}
-                                            onClick={role === 'Student' ? () => onEdit(i) : undefined}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (role === 'Student') onEdit(i);
+                                            }}
                                             className={`flex items-center gap-1 truncate px-1 py-[2px] rounded text-[11px] ${role === 'Student'
                                                 ? 'hover:bg-blue-100 dark:hover:bg-blue-800 cursor-pointer transition-colors'
                                                 : ''}`}
@@ -66,9 +69,12 @@ const MonthCalendarGrid = ({ days, incidents, onEdit, role, studentColors, onAdd
                                 })}
 
                                 {incidentsForDay.length > 3 && (
-                                    <div className="text-blue-600 text-[10px] mt-1">+{incidentsForDay.length - 3} more</div>
+                                    <div className="text-blue-600 text-[10px] mt-auto pt-1 font-medium flex justify-center">
+                                        +{incidentsForDay.length - 3} more
+                                    </div>
                                 )}
                             </div>
+
                         </div>
                     );
                 })}

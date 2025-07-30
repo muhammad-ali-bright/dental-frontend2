@@ -103,3 +103,16 @@ export const getStartAndEndOfWeek = (date) => {
 
   return { start, end };
 };
+
+export const parseLocalDateTime = (dateStr, timeStr) => {
+  const [time, modifier] = timeStr.split(' ');
+  let [hours, minutes] = time.split(':').map(Number);
+
+  if (modifier === 'PM' && hours !== 12) hours += 12;
+  if (modifier === 'AM' && hours === 12) hours = 0;
+
+  // 💡 Use new Date(year, month, day, hours, minutes) to avoid timezone shift
+  const [year, month, day] = dateStr.split('-').map(Number);
+
+  return new Date(year, month - 1, day, hours, minutes);  // ✅ No timezone issue
+}
