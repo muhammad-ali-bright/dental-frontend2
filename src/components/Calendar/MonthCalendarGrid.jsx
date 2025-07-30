@@ -30,7 +30,11 @@ const MonthCalendarGrid = ({ days, incidents, onEdit, role, studentColors, onAdd
                     return (
                         <div
                             key={index}
-                            className="border border-gray-200 dark:border-gray-700 h-28 p-1 text-sm flex flex-col cursor-pointer"
+                            className={`
+                                        border border-gray-200 dark:border-gray-700
+                                        h-28 p-1 text-sm flex flex-col transition-colors duration-150
+                                        ${role === "Student" ? "cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-800" : ""}
+                                    `}
                             onClick={
                                 role === 'Student'
                                     ? () => {

@@ -19,7 +19,7 @@ const PatientAppointmentsPage = () => {
 
   const filteredIncidents = patientIncidents.filter(incident => {
     const matchesSearch = incident.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         incident.description.toLowerCase().includes(searchTerm.toLowerCase());
+      incident.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || incident.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -74,7 +74,7 @@ const PatientAppointmentsPage = () => {
     .filter(apt => apt.status === 'Completed')
     .reduce((sum, apt) => sum + (apt.cost || 0), 0);
 
-  const upcomingCount = patientIncidents.filter(apt => 
+  const upcomingCount = patientIncidents.filter(apt =>
     new Date(apt.appointmentDate) > new Date() && apt.status === 'Scheduled'
   ).length;
 
@@ -150,8 +150,8 @@ const PatientAppointmentsPage = () => {
               </div>
             ) : (
               filteredIncidents.map((incident, index) => (
-                <div 
-                  key={incident.id} 
+                <div
+                  key={incident.id}
                   className="p-4 sm:p-6 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 animate-fade-in-up"
                   style={{ animationDelay: `${300 + index * 100}ms` }}
                 >
@@ -175,11 +175,11 @@ const PatientAppointmentsPage = () => {
                         )}
                       </div>
                     </div>
-                    
+
                     {incident.description && (
                       <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base">{incident.description}</p>
                     )}
-                    
+
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
                       <div className="flex items-center text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">
                         <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
@@ -231,8 +231,8 @@ const PatientAppointmentsPage = () => {
                         <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">Medical Documents:</h4>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                           {incident.files.map((file, fileIndex) => (
-                            <div 
-                              key={file.id} 
+                            <div
+                              key={file.id}
                               className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded-md transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-600 hover:shadow-md animate-fade-in-up"
                               style={{ animationDelay: `${400 + fileIndex * 50}ms` }}
                             >
@@ -269,7 +269,7 @@ const PatientAppointmentsPage = () => {
               <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
                 How was your treatment: {selectedAppointment.title}?
               </p>
-              
+
               <div className="flex items-center space-x-1 mb-4">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button

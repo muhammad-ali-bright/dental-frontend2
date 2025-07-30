@@ -84,7 +84,7 @@ const WeekCalendarGridSchedule = ({ currentDate, incidents, role, onAdd, onEdit,
                                                 key={i}
                                                 onClick={(e) => {
                                                     e.stopPropagation(); // ✅ prevent parent cell from interpreting click
-                                                    onEdit(appt);
+                                                    if (role == "Student") onEdit(appt);
                                                 }}
                                                 className={`absolute left-1 right-1 text-white text-xs p-1 rounded shadow overflow-hidden flex items-center z-[1] ${colorClass}`}
                                                 style={{

@@ -54,6 +54,10 @@ const PatientsPage = () => {
   }, [searchTerm, currentPage, pageSize, sortField, sortOrder, user?.role, user?.id]);
 
   useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, pageSize, sortField]);
+
+  useEffect(() => {
     if (showModal) setIsModalOpen(true);
   }, [showModal])
 
@@ -70,7 +74,7 @@ const PatientsPage = () => {
         order: sortOrder,
       });
 
-      const newTotalPages = Math.max(1, Math.ceil(data.totalCount / pageSize));
+      const newTotalPages = Math.max(1, Math.ceil(data.filteredTotalCount / pageSize));
       if (currentPage > newTotalPages) {
         setCurrentPage(newTotalPages);
       } else {
@@ -93,7 +97,6 @@ const PatientsPage = () => {
           console.error(`Failed to fetch incidents for ${patient.name}:`, err);
         }
       }
-
       setIncidentSummaries(summaries);
 
     } catch (err) {
@@ -228,7 +231,9 @@ const PatientsPage = () => {
                   type="text"
                   placeholder="Search patients..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                  }}
                   className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 placeholder-gray-500 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 />
               </div>
@@ -356,14 +361,14 @@ const PatientsPage = () => {
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead className="bg-gray-50 dark:bg-gray-700">
                 <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Patient
+                  </th>
                   {
                     user.role != "Student" && <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Student
                     </th>
                   }
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Patient
-                  </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Contact
                   </th>
@@ -376,9 +381,9 @@ const PatientsPage = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     First Upcoming
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Quick Actions
-                  </th>
+                  </th> */}
                   {
                     user.role == "Student" && <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Actions
@@ -400,6 +405,14 @@ const PatientsPage = () => {
                       className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 animate-fade-in-up"
                       style={{ animationDelay: `${300 + index * 100}ms` }}
                     >
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="hover:bg-blue-50 dark:hover:bg-blue-900/20 p-2 rounded-md transition-all duration-300 hover:shadow-md cursor-pointer">
+                          <div className="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">
+                            {patient.name}
+                          </div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">{patient.email}</div>
+                        </div>
+                      </td>
                       {
                         user.role != "Student" && <td className="px-6 py-4 whitespace-nowrap">
                           <div className="hover:bg-blue-50 dark:hover:bg-blue-900/20 p-2 rounded-md transition-all duration-300 hover:shadow-md cursor-pointer">
@@ -410,14 +423,6 @@ const PatientsPage = () => {
                           </div>
                         </td>
                       }
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="hover:bg-blue-50 dark:hover:bg-blue-900/20 p-2 rounded-md transition-all duration-300 hover:shadow-md cursor-pointer">
-                          <div className="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">
-                            {patient.name}
-                          </div>
-                          <div className="text-sm text-gray-500 dark:text-gray-400">{patient.email}</div>
-                        </div>
-                      </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900 dark:text-white">{patient.contact}</div>
                         {patient.emergencyContact && (
@@ -437,7 +442,7 @@ const PatientsPage = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                         {nextVisit}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      {/* <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex space-x-2">
                           <button
                             onClick={() => handleCallPatient(patient.contact)}
@@ -454,7 +459,7 @@ const PatientsPage = () => {
                             Email
                           </button>
                         </div>
-                      </td>
+                      </td> */}
                       {
                         user.role == "Student" && <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <div className="flex items-center justify-end space-x-2">
@@ -491,7 +496,7 @@ const PatientsPage = () => {
           currentPage={currentPage}
           totalPages={totalPages}
           pageSize={pageSize}
-          totalCount={totalCount}
+          totalCount={filteredTotalCount}
           onPageChange={(page) => setCurrentPage(page)}
         />
 

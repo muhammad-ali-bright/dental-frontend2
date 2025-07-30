@@ -453,7 +453,7 @@ const AppointmentsPage = () => {
           currentPage={currentPage}
           totalPages={totalPages}
           pageSize={pageSize}
-          totalCount={totalCount}
+          totalCount={filteredTotalCount}
           onPageChange={(page) => setCurrentPage(page)}
         />
 
