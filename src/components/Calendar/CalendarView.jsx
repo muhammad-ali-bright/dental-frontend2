@@ -177,7 +177,7 @@ const CalendarView = () => {
           >
             Week
           </button>
-          <button onClick={() => navigateDate('prev')} className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
+          <button onClick={() => navigateDate('prev')} aria-label="Previous month" className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
             <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>
           <button onClick={() => navigateDate('next')} className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">

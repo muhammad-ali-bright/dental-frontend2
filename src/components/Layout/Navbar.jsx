@@ -103,7 +103,7 @@ const Navbar = ({ isDark, onThemeToggle }) => {
 
           {/* Desktop Right Side */}
           <div className="hidden lg:flex items-center space-x-4">
-            <ThemeToggle isDark={isDark} onToggle={onThemeToggle} />
+            {/* <ThemeToggle isDark={isDark} onToggle={onThemeToggle} /> */}
             {/* <NotificationPanel /> */}
             <div className="flex items-center">
               <User className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-400'} mr-2`} />
@@ -130,7 +130,7 @@ const Navbar = ({ isDark, onThemeToggle }) => {
 
           {/* Mobile menu button */}
           <div className="lg:hidden flex items-center space-x-2">
-            <ThemeToggle isDark={isDark} onToggle={onThemeToggle} />
+            {/* <ThemeToggle isDark={isDark} onToggle={onThemeToggle} /> */}
             {/* <NotificationPanel /> */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}

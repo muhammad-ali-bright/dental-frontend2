@@ -12,6 +12,7 @@ const ThemeToggle = ({ isDark, onToggle }) => {
           ? 'bg-gray-700 hover:bg-gray-600 text-yellow-400 hover:text-yellow-300' 
           : 'bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-800'
         }
+          bg-gray-700 hover:bg-gray-600 text-yellow-400 hover:text-yellow-300
       `}
       title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
     >
