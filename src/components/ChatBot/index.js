@@ -106,7 +106,7 @@ const Chatbot = ({ isDark }) => {
                     {/* Image-based FAB */}
                     <button
                         onClick={handleOpen}
-                        className="w-32 h-32 rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-400 p-0 bg-transparent"
+                        className="w-28 h-28 rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-400 p-0 bg-transparent"
                         aria-label="Open chat"
                     >
                         <img
