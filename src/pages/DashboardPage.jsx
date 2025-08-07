@@ -5,7 +5,7 @@ import { useData } from '../contexts/DataContext';
 import Layout from '../components/Layout/Layout';
 import StatsCard from '../components/Dashboard/StatsCard';
 import AppointmentsList from '../components/Dashboard/AppointmentsList';
-import { Calendar, Users, DollarSign, Activity, TrendingUp, Clock, AlertTriangle } from 'lucide-react';
+import { Calendar, Users, DollarSign, Activity, TrendingUp, Clock} from 'lucide-react';
 
 const DashboardPage = () => {
   const { user } = useAuth();
@@ -283,9 +283,6 @@ const DashboardPage = () => {
             </div>
           </div>
         </div> */}
-
-        {/* Floating Action Button */}
-        {/* <FloatingActionButton userRole={user?.role} /> */}
       </div>
     </Layout>
   );
