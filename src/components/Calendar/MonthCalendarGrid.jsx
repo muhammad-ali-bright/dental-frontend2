@@ -1,5 +1,5 @@
 // MonthCalendarGrid.jsx
-const MonthCalendarGrid = ({ days, incidents, onEdit, role, studentColors, onAdd }) => {
+const MonthCalendarGrid = ({ days, incidents, onEdit, role, studentColors, onAdd, isDark }) => {
     const getIncidentsForDate = (dateObj) => {
         return incidents.filter(i =>
             new Date(i.appointmentDate).toDateString() === dateObj.toDateString()
@@ -15,7 +15,7 @@ const MonthCalendarGrid = ({ days, incidents, onEdit, role, studentColors, onAdd
 
     return (
         <div className="space-y-2">
-            <div className="grid grid-cols-7 text-center text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300">
+            <div className={`grid grid-cols-7 text-center text-xs sm:text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                 {dayNames.map((day, index) => (
                     <div key={index}>{day}</div>
                 ))}
@@ -30,11 +30,9 @@ const MonthCalendarGrid = ({ days, incidents, onEdit, role, studentColors, onAdd
                     return (
                         <div
                             key={index}
-                            className={`
-                                        border border-gray-200 dark:border-gray-700
-                                        h-28 p-1 text-sm flex flex-col transition-colors duration-150
-                                        ${role === "Student" ? "cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-800" : ""}
-                                    `}
+                            className={`border ${isDark ? 'border-gray-700' : 'border-gray-200'}
+                                h-28 p-1 text-sm flex flex-col transition-colors duration-150
+                                ${role === "Student" ? (isDark ? 'cursor-pointer hover:bg-gray-800' : 'cursor-pointer hover:bg-blue-50') : ""}`}
                             onClick={
                                 role === 'Student'
                                     ? () => {
@@ -45,11 +43,11 @@ const MonthCalendarGrid = ({ days, incidents, onEdit, role, studentColors, onAdd
                                     : undefined
                             }
                         >
-                            <div className="text-center text-xs text-gray-500 dark:text-gray-400 font-medium mb-1">
+                            <div className={`text-center text-xs font-medium mb-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                                 {day.getDate()}
                             </div>
 
-                            <div className="flex flex-col justify-start min-h-[4.5rem] space-y-[2px] text-[11px] text-gray-700 dark:text-gray-200 px-4">
+                            <div className={`flex flex-col justify-start min-h-[4.5rem] space-y-[2px] text-[11px] px-4 ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
                                 {incidentsForDay.slice(0, 3).map((i, idx) => {
                                     const sid = i.patient?.studentId;
                                     const colorClass =
@@ -63,7 +61,9 @@ const MonthCalendarGrid = ({ days, incidents, onEdit, role, studentColors, onAdd
                                                 if (role === 'Student') onEdit(i);
                                             }}
                                             className={`flex items-center gap-1 truncate px-1 py-[2px] rounded text-[11px] ${role === 'Student'
-                                                ? 'hover:bg-blue-100 dark:hover:bg-blue-800 cursor-pointer transition-colors'
+                                                ? isDark
+                                                    ? 'hover:bg-blue-800 cursor-pointer transition-colors'
+                                                    : 'hover:bg-blue-100 cursor-pointer transition-colors'
                                                 : ''}`}
                                         >
                                             <span className={`w-1.5 h-1.5 rounded-full inline-block ${colorClass}`} />
@@ -73,7 +73,7 @@ const MonthCalendarGrid = ({ days, incidents, onEdit, role, studentColors, onAdd
                                 })}
 
                                 {incidentsForDay.length > 3 && (
-                                    <div className="text-blue-600 text-[10px] mt-auto pt-1 font-medium flex justify-center">
+                                    <div className={`text-[10px] mt-auto pt-1 font-medium flex justify-center ${isDark ? 'text-blue-300' : 'text-blue-600'}`}>
                                         +{incidentsForDay.length - 3} more
                                     </div>
                                 )}

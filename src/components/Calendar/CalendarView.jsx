@@ -14,7 +14,8 @@ const CalendarView = () => {
   const {
     dropdownPatients,
     incidents,
-    fetchIncidentsByRange
+    fetchIncidentsByRange,
+    isDark
   } = useData();
   const { user } = useAuth();
 
@@ -66,14 +67,12 @@ const CalendarView = () => {
       const newStart = parseLocalDateTime(incidentData.date, incidentData.startTime);
       const newEnd = parseLocalDateTime(incidentData.date, incidentData.endTime);
 
-      // ✅ Filter only student’s own appointments
       const studentAppointments = incidents.filter(i => i.patient?.studentId === user.id);
 
       const hasOverlap = studentAppointments.some((appt) => {
         const existingStart = new Date(appt.appointmentDate);
         const existingEnd = new Date(appt.endTime || existingStart);
 
-        // Skip if editing the same appointment
         if (isEditing && appt.id === selectedAppointment.id) return false;
 
         return newStart < existingEnd && newEnd > existingStart;
@@ -84,7 +83,6 @@ const CalendarView = () => {
         return;
       }
 
-      // Proceed to save
       if (isEditing) {
         await updateIncidentAPI(selectedAppointment.id, incidentData);
         toast.success("Appointment updated successfully");
@@ -120,12 +118,10 @@ const CalendarView = () => {
     fetchIncidentsByRange(start.toISOString(), end.toISOString());
   };
 
-  // Re-fetch on currentDate or view change
   useEffect(() => {
     fetchCurrentRange();
   }, [currentDate, view]);
 
-  // Build student color map once in CalendarView
   const studentColors = {};
   const colorPalette = [
     'bg-blue-600',
@@ -149,39 +145,27 @@ const CalendarView = () => {
     });
   }
 
-
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 animate-fade-in-up">
-      <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-        <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
+    <div className={`rounded-lg shadow-sm border animate-fade-in-up ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+      <div className={`p-4 sm:p-6 border-b flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0 ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
+        <h2 className={`text-lg sm:text-xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
           {currentDate.toLocaleString('default', { month: 'long' })} {year}
         </h2>
         <div className="flex items-center gap-2">
-          <button onClick={goToToday} className="px-3 py-1.5 text-sm rounded-md bg-gray-200 dark:bg-gray-700 dark:text-white hover:bg-blue-500">
+          <button onClick={goToToday} className={`px-3 py-1.5 text-sm rounded-md ${isDark ? 'bg-gray-700 text-white' : 'bg-gray-200 hover:bg-blue-500'}`}>
             Today
           </button>
-          <button onClick={() => setView('month')} className={`px-3 py-1.5 text-sm rounded-md ${view === 'month' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 dark:text-white'}`}>
+          <button onClick={() => setView('month')} className={`px-3 py-1.5 text-sm rounded-md ${view === 'month' ? 'bg-blue-500 text-white' : isDark ? 'bg-gray-700 text-white' : 'bg-gray-200'}`}>
             Month
           </button>
-          <button
-            onClick={() => {
-              // Get the first visible day of the current month view
-              const startOfMonthView = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-              const startOfWeek = new Date(startOfMonthView);
-              startOfWeek.setDate(startOfMonthView.getDate()); // Assuming week starts Sunday
-
-              // setCurrentDate(startOfWeek);
-              setView('week');
-            }}
-            className={`px-3 py-1.5 text-sm rounded-md ${view === 'week' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 dark:text-white'}`}
-          >
+          <button onClick={() => setView('week')} className={`px-3 py-1.5 text-sm rounded-md ${view === 'week' ? 'bg-blue-500 text-white' : isDark ? 'bg-gray-700 text-white' : 'bg-gray-200'}`}>
             Week
           </button>
-          <button onClick={() => navigateDate('prev')} aria-label="Previous month" className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
-            <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+          <button onClick={() => navigateDate('prev')} aria-label="Previous month" className={`p-2 rounded-md ${isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}>
+            <ChevronLeft className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-600'}`} />
           </button>
-          <button onClick={() => navigateDate('next')} className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
-            <ChevronRight className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+          <button onClick={() => navigateDate('next')} className={`p-2 rounded-md ${isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}>
+            <ChevronRight className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-600'}`} />
           </button>
         </div>
       </div>
@@ -197,6 +181,7 @@ const CalendarView = () => {
             onAdd={handleAdd}
             role={user?.role}
             studentColors={studentColors}
+            isDark = {isDark}
           />
         ) : (
           <WeekCalendarGrid
@@ -206,6 +191,7 @@ const CalendarView = () => {
             onAdd={handleAdd}
             onEdit={handleEdit}
             studentColors={studentColors}
+            isDark = {isDark}
           />
         )}
 
@@ -220,6 +206,7 @@ const CalendarView = () => {
           appointment={selectedAppointment}
           patients={dropdownPatients}
           selectedSlot={selectedSlot}
+          isDark = {isDark}
         />
       </div>
     </div>

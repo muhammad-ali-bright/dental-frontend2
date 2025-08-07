@@ -14,21 +14,24 @@ export const useData = () => {
 export const DataProvider = ({ children }) => {
   const { isAuthenticated } = useAuth();
 
-  // 🔽 Dropdown Patient List
+  // Dropdown Patient List
   const [dropdownPatients, setDropdownPatients] = useState([]);
 
-  // 📅 Appointment Data
+  // Appointment Data
   const [incidents, setIncidents] = useState([]);
   const [todayIncidents, setTodayIncidents] = useState([]);
   const [upcomingIncidents, setUpcomingIncidents] = useState([]);
 
-  // 📊 Stats
+  // Stats
   const [totalCount, setTotalCount] = useState(0);
   const [filteredTotalCount, setFilteredTotalCount] = useState(0);
   const [completedCount, setCompletedCount] = useState(0);
   const [overdueCount, setOverdueCount] = useState(0);
 
-  // 🔄 Fetch dropdown list of patients
+  // Theme Mode
+  const [isDark, setIsDark] = useState(false);
+
+  // Fetch dropdown list of patients
   const fetchDropdownPatients = async () => {
     try {
       const res = await fetchPatientDropdownAPI();
@@ -38,7 +41,7 @@ export const DataProvider = ({ children }) => {
     }
   };
 
-  // 📋 Fetch full incident list (for dashboard or list views)
+  // Fetch full incident list (for dashboard or list views)
   const fetchIncidents = async (page = 1, size = 10, status = 'all', date = 'all', search = '') => {
     try {
       const { data } = await getIncidentsAPI(page, size, status, date, search);
@@ -83,6 +86,8 @@ export const DataProvider = ({ children }) => {
   return (
     <DataContext.Provider
       value={{
+        isDark,
+        setIsDark,
         // Incidents
         incidents,
         setIncidents,

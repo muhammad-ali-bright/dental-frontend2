@@ -36,12 +36,6 @@ const Navbar = ({ isDark, onThemeToggle }) => {
     { path: '/calendar', label: 'Calendar', icon: BarChart3 },
   ];
 
-  // const patientNavItems = [
-  //   { path: '/patient-dashboard', label: 'My Dashboard', icon: Home },
-  //   { path: '/my-appointments', label: 'My Appointments', icon: Calendar },
-  // ];
-
-  // const navItems = user?.role === 'Student' ? adminNavItems : patientNavItems;
   const navItems = adminNavItems;
 
   const handleNavClick = (path) => {
@@ -103,7 +97,7 @@ const Navbar = ({ isDark, onThemeToggle }) => {
 
           {/* Desktop Right Side */}
           <div className="hidden lg:flex items-center space-x-4">
-            {/* <ThemeToggle isDark={isDark} onToggle={onThemeToggle} /> */}
+            <ThemeToggle isDark={isDark} onToggle={onThemeToggle} />
             {/* <NotificationPanel /> */}
             <div className="flex items-center">
               <User className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-400'} mr-2`} />

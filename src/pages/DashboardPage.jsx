@@ -5,12 +5,11 @@ import { useData } from '../contexts/DataContext';
 import Layout from '../components/Layout/Layout';
 import StatsCard from '../components/Dashboard/StatsCard';
 import AppointmentsList from '../components/Dashboard/AppointmentsList';
-import FloatingActionButton from '../components/Dashboard/FloatingActionButton';
-import { Calendar, Users, DollarSign, Activity, Bell, TrendingUp, Clock, AlertTriangle } from 'lucide-react';
+import { Calendar, Users, DollarSign, Activity, TrendingUp, Clock, AlertTriangle } from 'lucide-react';
 
 const DashboardPage = () => {
   const { user } = useAuth();
-  const { dropdownPatients, incidents, todayIncidents, upcomingIncidents } = useData();
+  const { dropdownPatients, incidents, todayIncidents, upcomingIncidents, isDark } = useData();
   const [isLoaded, setIsLoaded] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate();
@@ -123,10 +122,16 @@ const DashboardPage = () => {
             {/* Floating Background Element */}
             <div className="absolute -top-4 -left-4 w-20 h-20 bg-blue-100 dark:bg-blue-900 rounded-full opacity-20 animate-float animation-delay-500"></div>
 
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white animate-fade-in-right animation-delay-200 relative z-10">
+            <h1
+              className={`text-2xl sm:text-3xl font-bold animate-fade-in-right animation-delay-200 relative z-10 ${isDark ? 'text-white' : 'text-gray-900'
+                }`}
+            >
               Welcome back, {user?.name || user?.email}!
             </h1>
-            <p className="text-gray-600 dark:text-gray-300 mt-1 text-sm sm:text-base animate-fade-in-right animation-delay-400 relative z-10">
+            <p
+              className={`mt-1 text-sm sm:text-base animate-fade-in-right animation-delay-400 relative z-10 ${isDark ? 'text-gray-300' : 'text-gray-600'
+                }`}
+            >
               Here's what's happening with your dental practice today.
             </p>
           </div>
@@ -140,43 +145,98 @@ const DashboardPage = () => {
               className={`transition-all duration-700 transform ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}
               style={{ transitionDelay: `${stat.delay}ms` }}
             >
-              <StatsCard {...stat} />
+              <StatsCard {...stat} isDark={isDark} />
             </div>
           ))}
         </div>
 
         {/* Quick Actions Panel */}
-        <div className={`mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700 rounded-lg p-6 transition-all duration-700 transform ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`} style={{ transitionDelay: '500ms' }}>
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
-            <TrendingUp className="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" />
+        <div
+          className={`
+    mb-6 rounded-lg p-6 transition-all duration-700 transform
+    ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}
+    ${isDark
+              ? 'bg-gradient-to-r from-gray-800 to-gray-700'
+              : 'bg-gradient-to-r from-blue-50 to-indigo-50'}
+  `}
+          style={{ transitionDelay: '500ms' }}
+        >
+          <h3
+            className={`
+      text-lg font-medium mb-4 flex items-center
+      ${isDark ? 'text-white' : 'text-gray-900'}
+    `}
+          >
+            <TrendingUp className={`w-5 h-5 mr-2 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
             Quick Actions
           </h3>
+
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <button className="flex flex-col items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-              onClick={() => {
-                navigate("/patients?openModal=1")
-              }}>
-              <Users className="w-8 h-8 text-blue-600 dark:text-blue-400 mb-2" />
-              <span className="text-sm font-medium text-gray-900 dark:text-white">Add Patient</span>
+            {/* Add Patient */}
+            <button
+              className={`
+        flex flex-col items-center p-4 rounded-lg shadow-sm transition-all duration-300 transform hover:scale-105
+        ${isDark
+                  ? 'bg-gray-800 hover:bg-blue-900/20'
+                  : 'bg-white hover:bg-blue-50 border border-gray-200'}
+      `}
+              onClick={() => navigate("/patients?openModal=1")}
+            >
+              <Users className={`w-8 h-8 mb-2 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
+              <span className={`text-sm font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                Add Patient
+              </span>
             </button>
-            <button className="flex flex-col items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105 hover:bg-green-50 dark:hover:bg-green-900/20" onClick={() => {
-              navigate("/calendar");
-            }}>
-              <Calendar className="w-8 h-8 text-green-600 dark:text-green-400 mb-2" />
-              <span className="text-sm font-medium text-gray-900 dark:text-white">Calendar</span>
+
+            {/* Calendar */}
+            <button
+              className={`
+        flex flex-col items-center p-4 rounded-lg shadow-sm transition-all duration-300 transform hover:scale-105
+        ${isDark
+                  ? 'bg-gray-800 hover:bg-green-900/20'
+                  : 'bg-white hover:bg-green-50 border border-gray-200'}
+      `}
+              onClick={() => navigate("/calendar")}
+            >
+              <Calendar className={`w-8 h-8 mb-2 ${isDark ? 'text-green-400' : 'text-green-600'}`} />
+              <span className={`text-sm font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                Calendar
+              </span>
             </button>
-            <button className="flex flex-col items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105 hover:bg-purple-50 dark:hover:bg-purple-900/20" onClick={() => {
-              navigate("/appointments");
-            }}>
-              <Clock className="w-8 h-8 text-purple-600 dark:text-purple-400 mb-2" />
-              <span className="text-sm font-medium text-gray-900 dark:text-white">Appointments</span>
+
+            {/* Appointments */}
+            <button
+              className={`
+        flex flex-col items-center p-4 rounded-lg shadow-sm transition-all duration-300 transform hover:scale-105
+        ${isDark
+                  ? 'bg-gray-800 hover:bg-purple-900/20'
+                  : 'bg-white hover:bg-purple-50 border border-gray-200'}
+      `}
+              onClick={() => navigate("/appointments")}
+            >
+              <Clock className={`w-8 h-8 mb-2 ${isDark ? 'text-purple-400' : 'text-purple-600'}`} />
+              <span className={`text-sm font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                Appointments
+              </span>
             </button>
-            <button className="flex flex-col items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105 hover:bg-orange-50 dark:hover:bg-orange-900/20">
-              <DollarSign className="w-8 h-8 text-orange-600 dark:text-orange-400 mb-2" />
-              <span className="text-sm font-medium text-gray-900 dark:text-white">Billing</span>
+
+            {/* Billing */}
+            <button
+              className={`
+        flex flex-col items-center p-4 rounded-lg shadow-sm transition-all duration-300 transform hover:scale-105
+        ${isDark
+                  ? 'bg-gray-800 hover:bg-orange-900/20'
+                  : 'bg-white hover:bg-orange-50 border border-gray-200'}
+      `}
+            >
+              <DollarSign className={`w-8 h-8 mb-2 ${isDark ? 'text-orange-400' : 'text-orange-600'}`} />
+              <span className={`text-sm font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                Billing
+              </span>
             </button>
           </div>
         </div>
+
 
         {/* Appointments Lists with Enhanced Animation */}
         <div className={`grid grid-cols-1 xl:grid-cols-2 gap-6 transition-all duration-700 transform ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`} style={{ transitionDelay: '600ms' }}>
@@ -185,6 +245,7 @@ const DashboardPage = () => {
               <AppointmentsList
                 appointments={todayIncidents}
                 title="Today's Appointments"
+                isDark={isDark}
               />
             </div>
           </div>
@@ -193,6 +254,7 @@ const DashboardPage = () => {
               <AppointmentsList
                 appointments={upcomingIncidents}
                 title="Upcoming Appointments"
+                isDark={isDark}
               />
             </div>
           </div>

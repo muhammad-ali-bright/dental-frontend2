@@ -32,7 +32,6 @@ function assignOverlapColumns(appointments) {
         }
     });
 
-    // Flatten with metadata
     const result = [];
     columns.forEach((col, colIdx) => {
         col.forEach((appt) => {
@@ -47,7 +46,7 @@ function assignOverlapColumns(appointments) {
     return result;
 }
 
-const WeekCalendarGridSchedule = ({ currentDate, incidents, role, onAdd, onEdit, studentColors }) => {
+const WeekCalendarGridSchedule = ({ currentDate, incidents, role, onAdd, onEdit, studentColors, isDark }) => {
     const slotHeight = 64;
     const startHour = 0;
     const endHour = 24;
@@ -55,14 +54,13 @@ const WeekCalendarGridSchedule = ({ currentDate, incidents, role, onAdd, onEdit,
     const timeSlots = Array.from({ length: endHour - startHour }, (_, i) => addHours(startOfDay(new Date()), i));
 
     const startOfWeek = new Date(currentDate);
-    const dayOfWeek = startOfWeek.getDay(); // 0 (Sun) to 6 (Sat)
+    const dayOfWeek = startOfWeek.getDay();
     startOfWeek.setDate(currentDate.getDate() - dayOfWeek);
 
-    // Now generate 7 days starting from startOfWeek
     const weekDays = Array.from({ length: 7 }, (_, i) => {
         const date = new Date(startOfWeek);
         date.setDate(startOfWeek.getDate() + i);
-        return new Date(date); // clone to avoid reference bugs
+        return new Date(date);
     });
 
     const getAppointmentsForSlot = (day, slot) => {
@@ -78,11 +76,11 @@ const WeekCalendarGridSchedule = ({ currentDate, incidents, role, onAdd, onEdit,
     };
 
     return (
-        <div className="overflow-y-auto max-h-[800px] border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900">
-            <div className="grid grid-cols-[80px_repeat(7,1fr)] sticky top-0 z-10 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100 border-b border-gray-300 dark:border-gray-700 text-sm font-semibold">
-                <div className="p-2 border-r border-gray-300 dark:border-gray-700 text-center">Time</div>
+        <div className={`overflow-y-auto max-h-[800px] border rounded-lg ${isDark ? 'border-gray-700 bg-gray-900' : 'border-gray-300 bg-white'}`}>
+            <div className={`grid grid-cols-[80px_repeat(7,1fr)] sticky top-0 z-10 border-b text-sm font-semibold ${isDark ? 'bg-gray-800 text-gray-100 border-gray-700' : 'bg-gray-100 text-gray-800 border-gray-300'}`}>
+                <div className={`p-2 border-r text-center ${isDark ? 'border-gray-700' : 'border-gray-300'}`}>Time</div>
                 {weekDays.map((day, idx) => (
-                    <div key={idx} className="p-2 border-r border-gray-300 dark:border-gray-700 text-center">
+                    <div key={idx} className={`p-2 border-r text-center ${isDark ? 'border-gray-700' : 'border-gray-300'}`}>
                         {format(day, `d (EEE)`)}
                     </div>
                 ))}
@@ -91,7 +89,7 @@ const WeekCalendarGridSchedule = ({ currentDate, incidents, role, onAdd, onEdit,
             <div className="grid grid-cols-[80px_repeat(7,1fr)]">
                 {timeSlots.map((slot, slotIdx) => (
                     <React.Fragment key={slotIdx}>
-                        <div className="border border-gray-200 dark:border-gray-600 h-16 flex items-center justify-center text-xs text-gray-700 dark:text-gray-300">
+                        <div className={`h-16 flex items-center justify-center text-xs ${isDark ? 'text-gray-300 border-gray-600' : 'text-gray-700 border-gray-200'} border`}>
                             {format(slot, 'h:mm a')}
                         </div>
 
@@ -101,16 +99,14 @@ const WeekCalendarGridSchedule = ({ currentDate, incidents, role, onAdd, onEdit,
                             return (
                                 <div
                                     key={dayIdx}
-                                    className={`border border-gray-200 dark:border-gray-600 h-16 relative ${role === 'Student' ? 'cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-800' : ''}`}
+                                    className={`h-16 relative border ${isDark ? 'border-gray-600' : 'border-gray-200'} ${role === 'Student' ? (isDark ? 'hover:bg-gray-800' : 'hover:bg-blue-50') : ''} ${role === 'Student' ? 'cursor-pointer' : ''}`}
                                     onClick={
                                         role === 'Student'
                                             ? () => {
-                                                const dateStr = day.toISOString().split('T')[0]; // e.g. "2025-07-30"
-                                                const timeStr = format(slot, 'h:mm a');            // e.g. "9:00 AM"
-
-                                                const dateTime = parseLocalDateTime(dateStr, timeStr); // ✅ safe local date
-
-                                                onAdd(dateTime); // ✅ clean Date object
+                                                const dateStr = day.toISOString().split('T')[0];
+                                                const timeStr = format(slot, 'h:mm a');
+                                                const dateTime = parseLocalDateTime(dateStr, timeStr);
+                                                onAdd(dateTime);
                                             }
                                             : undefined
                                     }

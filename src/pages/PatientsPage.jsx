@@ -25,7 +25,7 @@ const PatientsPage = () => {
   const showModal = queryParams.get('openModal') === '1';
 
   const { user } = useAuth();
-  const { setDropdownPatients } = useData();
+  const { setDropdownPatients, isDark } = useData();
   const [patients, setPatients] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
   const [childrenCount, setChildrenCount] = useState(0);
@@ -177,9 +177,14 @@ const PatientsPage = () => {
         <div className="mb-6 sm:mb-8 animate-fade-in">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Patients</h1>
-              <p className="text-gray-600 dark:text-gray-300 mt-1 text-sm sm:text-base">Manage your patient database</p>
+              <h1 className={`text-2xl sm:text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                Patients
+              </h1>
+              <p className={`mt-1 text-sm sm:text-base ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                Manage your patient database
+              </p>
             </div>
+
             {
               user.role == "Student" && <div className="flex flex-col sm:flex-row gap-2">
                 <button
@@ -196,32 +201,66 @@ const PatientsPage = () => {
 
         {/* Patient Statistics */}
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{totalCount}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-300">Total Patients</div>
+          <div
+            className={`
+      p-4 rounded-lg shadow-sm border transition-colors
+      ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}
+    `}
+          >
+            <div className={`${isDark ? 'text-blue-400' : 'text-blue-600'} text-2xl font-bold`}>
+              {totalCount}
+            </div>
+            <div className={`${isDark ? 'text-gray-300' : 'text-gray-600'} text-sm`}>
+              Total Patients
+            </div>
           </div>
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+
+          <div
+            className={`
+      p-4 rounded-lg shadow-sm border transition-colors
+      ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}
+    `}
+          >
+            <div className={`${isDark ? 'text-green-400' : 'text-green-600'} text-2xl font-bold`}>
               {childrenCount}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-300">Children</div>
+            <div className={`${isDark ? 'text-gray-300' : 'text-gray-600'} text-sm`}>
+              Children
+            </div>
           </div>
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+
+          <div
+            className={`
+      p-4 rounded-lg shadow-sm border transition-colors
+      ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}
+    `}
+          >
+            <div className={`${isDark ? 'text-purple-400' : 'text-purple-600'} text-2xl font-bold`}>
               {adultCount}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-300">Adults</div>
+            <div className={`${isDark ? 'text-gray-300' : 'text-gray-600'} text-sm`}>
+              Adults
+            </div>
           </div>
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+
+          <div
+            className={`
+      p-4 rounded-lg shadow-sm border transition-colors
+      ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}
+    `}
+          >
+            <div className={`${isDark ? 'text-orange-400' : 'text-orange-600'} text-2xl font-bold`}>
               {seniorCount}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-300">Seniors</div>
+            <div className={`${isDark ? 'text-gray-300' : 'text-gray-600'} text-sm`}>
+              Seniors
+            </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
-          <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
+
+        <div className={`rounded-lg shadow-sm border animate-fade-in-up ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`} style={{ animationDelay: '200ms' }}>
+          <div className={`p-4 sm:p-6 border-b ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
               <div className="relative flex-1 max-w-md">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -231,22 +270,19 @@ const PatientsPage = () => {
                   type="text"
                   placeholder="Search patients..."
                   value={searchTerm}
-                  onChange={(e) => {
-                    setSearchTerm(e.target.value);
-                  }}
-                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 placeholder-gray-500 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className={`block w-full pl-10 pr-3 py-2 border rounded-md placeholder-gray-500 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all ${isDark ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-gray-900'}`}
                 />
               </div>
 
               <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                {/* Page size */}
                 <select
                   value={pageSize}
                   onChange={(e) => {
                     setPageSize(Number(e.target.value));
                     setCurrentPage(1);
                   }}
-                  className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className={`px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 ${isDark ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-gray-900'}`}
                 >
                   {[5, 10, 25, 50].map((size) => (
                     <option key={size} value={size}>{size} / page</option>
@@ -256,16 +292,15 @@ const PatientsPage = () => {
                 <select
                   value={sortField}
                   onChange={(e) => setSortField(e.target.value)}
-                  className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className={`px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 ${isDark ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-gray-900'}`}
                 >
                   <option value="name">Sort by Name</option>
                   <option value="createdAt">Sort by Created At</option>
                 </select>
 
-                {/* Toggle Icon for Sort Order */}
                 <button
                   onClick={() => setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'))}
-                  className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className={`px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 ${isDark ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-gray-900'}`}
                   title={`Sort ${sortOrder === 'asc' ? 'Descending' : 'Ascending'}`}
                 >
                   {sortOrder === 'asc' ? '▲' : '▼'}
@@ -274,42 +309,42 @@ const PatientsPage = () => {
             </div>
           </div>
 
+
           {/* Mobile Card View */}
           <div className="block lg:hidden">
-            <div className="divide-y divide-gray-200 dark:divide-gray-700">
+            <div className={`divide-y ${isDark ? 'divide-gray-700' : 'divide-gray-200'}`}>
               {patients.map((patient, index) => {
                 const summary = incidentSummaries[patient.id];
                 const totalIncidents = summary?.totalIncidents || 0;
                 const nextVisit = summary?.nextScheduledAppointment
                   ? formatDateTime(summary.nextScheduledAppointment)
                   : 'No visits';
+
                 return (
                   <div
                     key={patient.id}
-                    className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 animate-fade-in-up"
+                    className={`p-4 transition-all duration-300 animate-fade-in-up ${isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}
                     style={{ animationDelay: `${300 + index * 100}ms` }}
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1 min-w-0">
-                        <div className="hover:bg-blue-50 dark:hover:bg-blue-900/20 p-2 rounded-md transition-all duration-300 hover:shadow-md cursor-pointer">
-                          <div className="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300 truncate">
+                        <div className={`p-2 rounded-md transition-all duration-300 hover:shadow-md cursor-pointer ${isDark ? 'hover:bg-blue-900/20' : 'hover:bg-blue-50'}`}>
+                          <div className={`text-sm font-medium truncate transition-colors duration-300 ${isDark ? 'text-white hover:text-blue-400' : 'text-gray-900 hover:text-blue-600'}`}>
                             {patient.name}
                           </div>
-                          <div className="text-sm text-gray-500 dark:text-gray-400 truncate">{patient.email}</div>
+                          <div className={`text-sm truncate ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{patient.email}</div>
                         </div>
-                        <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600 dark:text-gray-300">
+                        <div className={`mt-2 grid grid-cols-2 gap-2 text-xs ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                           <div>
                             <span className="font-medium">Contact:</span> {patient.contact}
                           </div>
                           <div>
                             <span className="font-medium">Date of Birth: </span>
-                            {
-                              new Date(patient.dob).toLocaleDateString('en-US', {
-                                year: 'numeric',
-                                month: '2-digit',
-                                day: '2-digit',
-                              })
-                            }
+                            {new Date(patient.dob).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: '2-digit',
+                              day: '2-digit',
+                            })}
                           </div>
                           <div>
                             <span className="font-medium">Appointments:</span> {totalIncidents}
@@ -321,14 +356,14 @@ const PatientsPage = () => {
                         <div className="mt-2 flex space-x-2">
                           <button
                             onClick={() => handleCallPatient(patient.contact)}
-                            className="flex items-center px-2 py-1 text-xs bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-md hover:bg-green-200 dark:hover:bg-green-900/40 transition-colors"
+                            className={`flex items-center px-2 py-1 text-xs rounded-md transition-colors ${isDark ? 'bg-green-900/20 text-green-400 hover:bg-green-900/40' : 'bg-green-100 text-green-700 hover:bg-green-200'}`}
                           >
                             <Phone className="w-3 h-3 mr-1" />
                             Call
                           </button>
                           <button
                             onClick={() => handleEmailPatient(patient.email)}
-                            className="flex items-center px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-md hover:bg-blue-200 dark:hover:bg-blue-900/40 transition-colors"
+                            className={`flex items-center px-2 py-1 text-xs rounded-md transition-colors ${isDark ? 'bg-blue-900/20 text-blue-400 hover:bg-blue-900/40' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
                           >
                             <Mail className="w-3 h-3 mr-1" />
                             Email
@@ -338,13 +373,13 @@ const PatientsPage = () => {
                       <div className="flex items-center space-x-2 ml-4">
                         <button
                           onClick={() => handleEditPatient(patient)}
-                          className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 transition-all duration-300 transform hover:scale-110 p-2 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                          className={`transition-all duration-300 transform hover:scale-110 p-2 rounded-md ${isDark ? 'text-blue-400 hover:text-blue-300 hover:bg-blue-900/20' : 'text-blue-600 hover:text-blue-900 hover:bg-blue-50'}`}
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDeletePatient(patient.id)}
-                          className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-all duration-300 transform hover:scale-110 p-2 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20"
+                          className={`transition-all duration-300 transform hover:scale-110 p-2 rounded-md ${isDark ? 'text-red-400 hover:text-red-300 hover:bg-red-900/20' : 'text-red-600 hover:text-red-900 hover:bg-red-50'}`}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -357,127 +392,86 @@ const PatientsPage = () => {
           </div>
 
           {/* Desktop Table View */}
-          <div className="hidden lg:block overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead className="bg-gray-50 dark:bg-gray-700">
+          <div className={`hidden lg:block overflow-x-auto`}>
+            <table className={`min-w-full divide-y ${isDark ? 'divide-gray-700' : 'divide-gray-200'}`}>
+              <thead className={isDark ? 'bg-gray-700' : 'bg-gray-50'}>
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Patient
-                  </th>
-                  {
-                    user.role != "Student" && <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Student
-                    </th>
-                  }
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Contact
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Date of Birth
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Appointments
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    First Upcoming
-                  </th>
-                  {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Quick Actions
-                  </th> */}
-                  {
-                    user.role == "Student" && <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  }
+                  <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDark ? 'text-gray-300' : 'text-gray-500'}`}>Patient</th>
+                  {user.role != "Student" && (
+                    <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDark ? 'text-gray-300' : 'text-gray-500'}`}>Student</th>
+                  )}
+                  <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDark ? 'text-gray-300' : 'text-gray-500'}`}>Contact</th>
+                  <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDark ? 'text-gray-300' : 'text-gray-500'}`}>Date of Birth</th>
+                  <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDark ? 'text-gray-300' : 'text-gray-500'}`}>Appointments</th>
+                  <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDark ? 'text-gray-300' : 'text-gray-500'}`}>First Upcoming</th>
+                  {user.role == "Student" && (
+                    <th className={`px-6 py-3 text-right text-xs font-medium uppercase tracking-wider ${isDark ? 'text-gray-300' : 'text-gray-500'}`}>Actions</th>
+                  )}
                 </tr>
               </thead>
-              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              <tbody className={`${isDark ? 'bg-gray-800 divide-gray-700' : 'bg-white divide-gray-200'}`}>
                 {patients.map((patient, index) => {
                   const summary = incidentSummaries[patient.id];
                   const totalIncidents = summary?.totalIncidents || 0;
-                  const nextVisit = summary?.nextScheduledAppointment
-                    ? formatDateTime(summary.nextScheduledAppointment)
-                    : 'No visits';
+                  const nextVisit = summary?.nextScheduledAppointment ? formatDateTime(summary.nextScheduledAppointment) : 'No visits';
 
                   return (
                     <tr
                       key={patient.id}
-                      className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 animate-fade-in-up"
+                      className={`hover:${isDark ? 'bg-gray-700' : 'bg-gray-50'} transition-all duration-300 animate-fade-in-up`}
                       style={{ animationDelay: `${300 + index * 100}ms` }}
                     >
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="hover:bg-blue-50 dark:hover:bg-blue-900/20 p-2 rounded-md transition-all duration-300 hover:shadow-md cursor-pointer">
-                          <div className="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">
+                        <div className={`hover:${isDark ? 'bg-blue-900/20' : 'bg-blue-50'} p-2 rounded-md transition-all duration-300 hover:shadow-md cursor-pointer`}>
+                          <div className={`text-sm font-medium ${isDark ? 'text-white hover:text-blue-400' : 'text-gray-900 hover:text-blue-600'} transition-colors duration-300`}>
                             {patient.name}
                           </div>
-                          <div className="text-sm text-gray-500 dark:text-gray-400">{patient.email}</div>
+                          <div className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{patient.email}</div>
                         </div>
                       </td>
-                      {
-                        user.role != "Student" && <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="hover:bg-blue-50 dark:hover:bg-blue-900/20 p-2 rounded-md transition-all duration-300 hover:shadow-md cursor-pointer">
-                            <div className="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">
+                      {user.role != "Student" && (
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className={`hover:${isDark ? 'bg-blue-900/20' : 'bg-blue-50'} p-2 rounded-md transition-all duration-300 hover:shadow-md cursor-pointer`}>
+                            <div className={`text-sm font-medium ${isDark ? 'text-white hover:text-blue-400' : 'text-gray-900 hover:text-blue-600'} transition-colors duration-300`}>
                               {patient.user.name}
                             </div>
-                            <div className="text-sm text-gray-500 dark:text-gray-400">{patient.user.email}</div>
+                            <div className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{patient.user.email}</div>
                           </div>
                         </td>
-                      }
+                      )}
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900 dark:text-white">{patient.contact}</div>
+                        <div className={`text-sm ${isDark ? 'text-white' : 'text-gray-900'}`}>{patient.contact}</div>
                         {patient.emergencyContact && (
-                          <div className="text-sm text-gray-500 dark:text-gray-400">Emergency: {patient.emergencyContact}</div>
+                          <div className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Emergency: {patient.emergencyContact}</div>
                         )}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                      <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDark ? 'text-white' : 'text-gray-900'}`}>
                         {new Date(patient.dob).toLocaleDateString('en-US', {
                           year: 'numeric',
                           month: '2-digit',
                           day: '2-digit',
                         })}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                        {totalIncidents} total
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                        {nextVisit}
-                      </td>
-                      {/* <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex space-x-2">
-                          <button
-                            onClick={() => handleCallPatient(patient.contact)}
-                            className="flex items-center px-2 py-1 text-xs bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-md hover:bg-green-200 dark:hover:bg-green-900/40 transition-colors"
-                          >
-                            <Phone className="w-3 h-3 mr-1" />
-                            Call
-                          </button>
-                          <button
-                            onClick={() => handleEmailPatient(patient.email)}
-                            className="flex items-center px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-md hover:bg-blue-200 dark:hover:bg-blue-900/40 transition-colors"
-                          >
-                            <Mail className="w-3 h-3 mr-1" />
-                            Email
-                          </button>
-                        </div>
-                      </td> */}
-                      {
-                        user.role == "Student" && <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDark ? 'text-white' : 'text-gray-900'}`}>{totalIncidents} total</td>
+                      <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDark ? 'text-white' : 'text-gray-900'}`}>{nextVisit}</td>
+                      {user.role == "Student" && (
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <div className="flex items-center justify-end space-x-2">
                             <button
                               onClick={() => handleEditPatient(patient)}
-                              className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 transition-all duration-300 transform hover:scale-110 p-1 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                              className={`text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 transition-all duration-300 transform hover:scale-110 p-1 rounded-md ${isDark ? 'hover:bg-blue-900/20' : 'hover:bg-blue-50'}`}
                             >
                               <Edit2 className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleDeletePatient(patient.id)}
-                              className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-all duration-300 transform hover:scale-110 p-1 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20"
+                              className={`text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-all duration-300 transform hover:scale-110 p-1 rounded-md ${isDark ? 'hover:bg-red-900/20' : 'hover:bg-red-50'}`}
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
                           </div>
                         </td>
-                      }
+                      )}
                     </tr>
                   );
                 })}
@@ -485,9 +479,12 @@ const PatientsPage = () => {
             </table>
           </div>
 
+
           {patients.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-gray-500 dark:text-gray-400">No patients found</p>
+              <p className={`text-sm sm:text-base ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                No patients found
+              </p>
             </div>
           )}
         </div>
@@ -498,10 +495,12 @@ const PatientsPage = () => {
           pageSize={pageSize}
           totalCount={filteredTotalCount}
           onPageChange={(page) => setCurrentPage(page)}
+          isDark = {isDark}
         />
 
         <PatientModal
           isOpen={isModalOpen}
+          isDark = {isDark}
           onClose={() => {
             setIsModalOpen(false);
             navigate('/patients'); // Optional: clear ?openModal=1 from URL

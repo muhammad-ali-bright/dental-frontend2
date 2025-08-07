@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './Navbar';
 import LoadingOverlay from './LoadingOverlay';
+import { useData } from '../../contexts/DataContext';
 
 const Layout = ({ children }) => {
-  // const [isDark, setIsDark] = useState(false);
-  const isDark = true;
+  const {isDark, setIsDark} = useData();
   const [isLoading, setIsLoading] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -13,7 +13,7 @@ const Layout = ({ children }) => {
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const shouldBeDark = savedTheme === 'dark' || (!savedTheme && prefersDark);
     
-    // setIsDark(shouldBeDark);
+    setIsDark(shouldBeDark);
     
     if (shouldBeDark) {
       document.documentElement.classList.add('dark');
@@ -34,7 +34,7 @@ const Layout = ({ children }) => {
 
   const toggleTheme = () => {
     const newTheme = !isDark;
-    // setIsDark(newTheme);
+    setIsDark(newTheme);
     localStorage.setItem('theme', newTheme ? 'dark' : 'light');
     
     if (newTheme) {
