@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import ChatIcon from "./ChatIcon";
+import botIcon from "./chatbot.png";
 import { API } from "../../api/axios";
 import "./index.css";
 
@@ -98,19 +98,27 @@ const Chatbot = ({ isDark }) => {
                 <div className="relative group">
                     <div
                         className={`absolute right-14 bottom-1/2 translate-y-1/2 hidden group-hover:block text-xs px-3 py-2 rounded shadow-md w-48 
-                        ${isDark ? "bg-gray-800 text-white" : "bg-white text-gray-800"}`}
+        ${isDark ? "bg-gray-800 text-white" : "bg-white text-gray-800"}`}
                     >
                         Need help? Start a chat 💬
                     </div>
-                    <motion.button
+
+                    {/* Image-based FAB */}
+                    <button
                         onClick={handleOpen}
-                        className="w-14 h-14 rounded-full bg-blue-600 shadow-md hover:bg-blue-700 transition-colors flex items-center justify-center"
+                        className="w-32 h-32 rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-400 p-0 bg-transparent"
+                        aria-label="Open chat"
                     >
-                        <ChatIcon />
-                    </motion.button>
+                        <img
+                            src={botIcon}
+                            alt="Chatbot"
+                            className="w-full h-full object-contain"
+                            draggable={false}
+                        />
+                    </button>
                 </div>
             )}
-
+            
             <AnimatePresence onExitComplete={() => setShowFloatingButton(true)}>
                 {isOpen && (
                     <motion.div
