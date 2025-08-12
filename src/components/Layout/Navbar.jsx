@@ -23,6 +23,9 @@ const Navbar = ({ isDark, onThemeToggle }) => {
 
   const handleLogout = () => {
     logout();
+    localStorage.setItem('theme', 'light');    // or removeItem('theme')
+    document.documentElement.classList.remove('dark');
+    document.documentElement.style.backgroundColor = '#f8fafc';
     navigate('/login');
     setIsMobileMenuOpen(false);
   };

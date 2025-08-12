@@ -153,9 +153,9 @@ const DashboardPage = () => {
         {/* Quick Actions Panel */}
         <div
           className={`
-    mb-6 rounded-lg p-6 transition-all duration-700 transform
-    ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}
-    ${isDark
+              mb-6 rounded-lg p-6 transition-all transform
+              ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}
+              ${isDark
               ? 'bg-gradient-to-r from-gray-800 to-gray-700'
               : 'bg-gradient-to-r from-blue-50 to-indigo-50'}
   `}
@@ -163,9 +163,9 @@ const DashboardPage = () => {
         >
           <h3
             className={`
-      text-lg font-medium mb-4 flex items-center
-      ${isDark ? 'text-white' : 'text-gray-900'}
-    `}
+              text-lg font-medium mb-4 flex items-center
+              ${isDark ? 'text-white' : 'text-gray-900'}
+            `}
           >
             <TrendingUp className={`w-5 h-5 mr-2 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
             Quick Actions
